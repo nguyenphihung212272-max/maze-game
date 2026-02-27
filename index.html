@@ -703,9 +703,24 @@ document.getElementById('gameCanvas').addEventListener('click',e=>{
 
 /* ══ GAME FLOW ══ */
 function startGame(){
-  if(game)game.destroy();game=null;
-  showScreen('gameScreen');
-  setTimeout(()=>{game=new MazeGame(selectedChar,selectedDiff);},220);
+  if(game){game.destroy();game=null;}
+  // 1. Ẩn menu, hiện gameScreen ngay
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active','visible');});
+  document.getElementById('questionOverlay').classList.remove('active');
+  document.getElementById('pauseOverlay').classList.remove('active');
+
+  const gs=document.getElementById('gameScreen');
+  gs.classList.add('active');
+  document.getElementById('dpad').classList.add('visible');
+
+  // 2. Đợi 2 frame để browser layout xong (quan trọng trên Android)
+  //    Sau đó mới resize canvas và vẽ mê cung
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    gs.classList.add('visible');
+    game=new MazeGame(selectedChar,selectedDiff);
+    // 3. Game loop — vẽ liên tục, Android không bị trắng màn hình
+    startGameLoop();
+  }));
 }
 function togglePause(){
   if(!game||game.gameOver)return;
@@ -736,7 +751,18 @@ function backToMenu(){
   ['pauseBtn',    ()=>togglePause()],
   ['resumeBtn',   ()=>togglePause()],
   ['pauseMenuBtn',()=>backToMenu()],
-  ['nextBtn',     ()=>{if(game)game.destroy();game=null;showScreen('gameScreen');setTimeout(()=>{game=new MazeGame(selectedChar,selectedDiff,_nextScore,_nextLevel);},220);}],
+  ['nextBtn',     ()=>{
+    if(game)game.destroy();game=null;
+    const gs=document.getElementById('gameScreen');
+    document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active','visible');});
+    gs.classList.add('active');
+    document.getElementById('dpad').classList.add('visible');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      gs.classList.add('visible');
+      game=new MazeGame(selectedChar,selectedDiff,_nextScore,_nextLevel);
+      startGameLoop();
+    }));
+  }],
   ['restartBtn',  ()=>startGame()],
   ['resultMenuBtn',()=>backToMenu()],
 ].forEach(([id,fn])=>document.getElementById(id).addEventListener('pointerdown',fn));
