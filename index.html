@@ -389,9 +389,9 @@ function showScreen(id){
   if(cur===nxt)return;
   if(cur){cur.classList.remove('visible');setTimeout(()=>cur.classList.remove('active'),280);}
   setTimeout(()=>{
-    nxt.classList.add('active');
-    requestAnimationFrame(()=>requestAnimationFrame(()=>nxt.classList.add('visible')));
-  },cur?200:0);
+    nxt.classList.add('active','visible');
+  },cur?220:0);
+  // D-pad chỉ hiện khi ở màn game
   document.getElementById('dpad').classList.toggle('visible',id==='gameScreen');
 }
 
@@ -447,12 +447,13 @@ class MazeGame{
     this.paused=false;this.inQuestion=false;this.gameOver=false;
     this.startTime=Date.now();this.usedQ=new Set();
 
-    const aw=Math.min(window.innerWidth*(window.innerWidth>700?.52:.95),480);
-    const ah=Math.min(window.innerHeight*.62,480);
-    this.CELL=Math.max(18,Math.min(50,0|Math.min(aw,ah)/this.W));
+    // tileSize = Math.floor(availableSpace / mazeColumns) — công thức chuẩn
+    this.CELL = calcCellSize(this.W);
 
     const cv=document.getElementById('gameCanvas');
-    cv.width=this.W*this.CELL;cv.height=this.H*this.CELL;
+    // Resize canvas ngay lập tức theo kích thước thực tế
+    cv.width  = this.W * this.CELL;
+    cv.height = this.H * this.CELL;
     this.ctx=cv.getContext('2d');
     this.mmCtx=document.getElementById('minimap').getContext('2d');
 
@@ -469,7 +470,8 @@ class MazeGame{
     [[0,0],[-1,0],[1,0],[0,-1],[0,1]].forEach(([dx,dy])=>{
       if(this.cells[dy]?.[dx])this.cells[dy][dx].explored=true;
     });
-    this.updateUI();this.draw();this.drawMinimap();
+    this.updateUI();
+    // draw() và drawMinimap() sẽ được gọi bởi game loop
 
     this._kh=e=>this.handleKey(e);
     document.addEventListener('keydown',this._kh);
@@ -704,23 +706,23 @@ document.getElementById('gameCanvas').addEventListener('click',e=>{
 /* ══ GAME FLOW ══ */
 function startGame(){
   if(game){game.destroy();game=null;}
-  // 1. Ẩn menu, hiện gameScreen ngay
+  stopGameLoop();
+
+  // 1. Ẩn menu, hiện gameCanvas (bước 4 trong hướng dẫn)
   document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active','visible');});
   document.getElementById('questionOverlay').classList.remove('active');
   document.getElementById('pauseOverlay').classList.remove('active');
 
-  const gs=document.getElementById('gameScreen');
-  gs.classList.add('active');
+  const gs = document.getElementById('gameScreen');
+  gs.classList.add('active','visible');
   document.getElementById('dpad').classList.add('visible');
 
-  // 2. Đợi 2 frame để browser layout xong (quan trọng trên Android)
-  //    Sau đó mới resize canvas và vẽ mê cung
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    gs.classList.add('visible');
-    game=new MazeGame(selectedChar,selectedDiff);
-    // 3. Game loop — vẽ liên tục, Android không bị trắng màn hình
+  // 2. resizeCanvas() — đo kích thước sau khi canvas visible (bước 3)
+  // 3. Android cần delay nhẹ (100ms) để vẽ mê cung (bước 4)
+  setTimeout(()=>{
+    game = new MazeGame(selectedChar, selectedDiff);
     startGameLoop();
-  }));
+  }, 100);
 }
 function togglePause(){
   if(!game||game.gameOver)return;
@@ -728,6 +730,7 @@ function togglePause(){
   document.getElementById('pauseOverlay').classList.toggle('active',game.paused);
 }
 function showResult(win,score,correct,time,level){
+  stopGameLoop();
   showScreen('resultScreen');
   _nextScore=score;_nextLevel=(level||1)+1;
   const t=document.getElementById('resultTitle');
@@ -740,6 +743,7 @@ function showResult(win,score,correct,time,level){
   document.getElementById('nextBtn').style.display=win?'':'none';
 }
 function backToMenu(){
+  stopGameLoop();
   if(game){game.destroy();game=null;}
   document.getElementById('pauseOverlay').classList.remove('active');
   document.getElementById('questionOverlay').classList.remove('active');
@@ -753,19 +757,68 @@ function backToMenu(){
   ['pauseMenuBtn',()=>backToMenu()],
   ['nextBtn',     ()=>{
     if(game)game.destroy();game=null;
-    const gs=document.getElementById('gameScreen');
+    stopGameLoop();
     document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active','visible');});
-    gs.classList.add('active');
+    const gs=document.getElementById('gameScreen');
+    gs.classList.add('active','visible');
     document.getElementById('dpad').classList.add('visible');
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      gs.classList.add('visible');
+    setTimeout(()=>{
       game=new MazeGame(selectedChar,selectedDiff,_nextScore,_nextLevel);
       startGameLoop();
-    }));
+    },100);
   }],
-  ['restartBtn',  ()=>startGame()],
+  ['restartBtn',  ()=>{stopGameLoop();startGame();}],
   ['resultMenuBtn',()=>backToMenu()],
 ].forEach(([id,fn])=>document.getElementById(id).addEventListener('pointerdown',fn));
+
+/* ══ GAME LOOP — vẽ liên tục, Android không bị trắng màn hình ══ */
+let _loopId=null;
+function startGameLoop(){
+  cancelAnimationFrame(_loopId);
+  function loop(){
+    if(game&&!game.gameOver){
+      game.draw();
+      game.drawMinimap();
+    }
+    _loopId=requestAnimationFrame(loop);
+  }
+  _loopId=requestAnimationFrame(loop);
+}
+function stopGameLoop(){cancelAnimationFrame(_loopId);_loopId=null;}
+
+/* ══ RESIZE ENGINE — chuẩn Android ══ */
+// Tính CELL size dựa trên kích thước màn hình thực tế
+function calcCellSize(mazeW){
+  // Đọc kích thước sau khi browser đã layout
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const isMobile = vw <= 700;
+  // Dành không gian: mobile → full width trừ padding; PC → ~52% width, 62% height
+  const aw = Math.min(isMobile ? vw * 0.96 : vw * 0.52, 480);
+  const ah = Math.min(isMobile ? vh * 0.55 : vh * 0.62, 480);
+  // tileSize = Math.floor(availableSpace / mazeColumns) — đúng công thức tài liệu
+  return Math.max(18, Math.min(50, 0 | Math.min(aw, ah) / mazeW));
+}
+
+function resizeCanvas(){
+  if(!game || game.gameOver) return;
+  const newCell = calcCellSize(game.W);
+  if(newCell === game.CELL) return; // không thay đổi, bỏ qua
+  game.CELL = newCell;
+  const cv = document.getElementById('gameCanvas');
+  cv.width  = game.W * newCell;
+  cv.height = game.H * newCell;
+  // Vẽ lại ngay sau resize
+  game.draw();
+  game.drawMinimap();
+}
+
+// Lắng nghe cả resize VÀ orientationchange — Android cần orientationchange
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => {
+  // Android cần delay nhẹ sau orientationchange để đo lại kích thước đúng
+  setTimeout(resizeCanvas, 120);
+});
 
 /* ══ NOTIFICATION ══ */
 let _nTO=null;
