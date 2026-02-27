@@ -2,838 +2,1397 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>🎮 MAZE OF WISDOM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>⚔️ PIXEL LEGEND</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap');
-
-:root {
-  --gold:#f5c842; --gold2:#e8a020; --deep:#0a0614;
-  --accent:#7b2fff; --red:#e83535; --green:#22c55e; --hp-red:#ff4444;
-}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{
-  background:var(--deep);font-family:'Crimson Pro',Georgia,serif;
-  color:#e2d9f3;height:100%;overflow:hidden;
-  background-image:
-    radial-gradient(ellipse at 20% 50%,rgba(123,47,255,.15) 0%,transparent 60%),
-    radial-gradient(ellipse at 80% 20%,rgba(232,160,32,.1) 0%,transparent 50%);
-}
-
-/* ── SCREENS ── */
-.screen{
-  display:none;position:absolute;inset:0;
-  flex-direction:column;align-items:center;
-  overflow-y:auto;overflow-x:hidden;
-  opacity:0;transition:opacity .3s;
-}
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0a0a14;color:#fff;font-family:'Press Start 2P',monospace;overflow:hidden;width:100vw;height:100vh;}
+#app{width:100vw;height:100vh;position:relative;}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;}
 .screen.active{display:flex;}
-.screen.visible{opacity:1;}
 
-/* ── MENU ── */
-#menuScreen{gap:26px;padding:32px 20px 80px;justify-content:flex-start;min-height:100%;}
-.game-title{
-  font-family:'Cinzel Decorative',serif;font-size:clamp(1.8rem,6vw,3.6rem);
-  font-weight:900;color:var(--gold);text-align:center;letter-spacing:.05em;
-  text-shadow:0 0 30px rgba(245,200,66,.6),0 0 60px rgba(245,200,66,.3);
-  animation:titlePulse 3s ease-in-out infinite;
-}
-@keyframes titlePulse{
-  0%,100%{text-shadow:0 0 30px rgba(245,200,66,.6),0 0 60px rgba(245,200,66,.3);}
-  50%{text-shadow:0 0 50px rgba(245,200,66,.9),0 0 100px rgba(245,200,66,.5);}
-}
-.subtitle{font-size:1rem;color:#a78bfa;letter-spacing:.3em;text-transform:uppercase;font-style:italic;}
-.section-title{
-  font-family:'Cinzel Decorative',serif;font-size:1rem;
-  color:var(--gold2);letter-spacing:.2em;text-transform:uppercase;margin-bottom:12px;
-}
+/* MENU */
+#menu-screen{background:radial-gradient(ellipse at 50% 40%,#1a1040 0%,#060312 70%);overflow-y:auto;padding:12px 0 24px;align-items:center;}
+.logo-main{font-size:clamp(14px,3.8vw,24px);color:#FFD700;text-shadow:0 0 20px #FFD700,3px 3px 0 #7a4800;display:block;text-align:center;animation:lglow 2s ease-in-out infinite alternate;letter-spacing:2px;}
+.logo-sub{font-size:clamp(7px,1.8vw,11px);color:#88DDFF;display:block;text-align:center;margin-top:5px;text-shadow:0 0 8px #44FFFF;}
+@keyframes lglow{from{text-shadow:0 0 10px #FFD700,3px 3px 0 #7a4800;}to{text-shadow:0 0 35px #FFD700,0 0 60px #FF8800,3px 3px 0 #7a4800;}}
+.logo-wrap{margin-bottom:10px;position:relative;}
 
-/* Char grid */
-.char-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;width:100%;max-width:560px;}
-@media(max-width:520px){.char-grid{grid-template-columns:repeat(4,1fr);}}
+.sec-lbl{font-size:6.5px;color:#FFD700;width:min(500px,93vw);margin:8px 0 5px;text-shadow:0 0 5px #FFD700;}
+.char-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;width:min(500px,93vw);}
 .char-card{
-  background:rgba(255,255,255,.04);border:1px solid rgba(168,85,247,.3);
-  border-radius:12px;padding:14px 6px;text-align:center;cursor:pointer;
-  transition:transform .2s,border-color .2s,box-shadow .2s,background .2s;position:relative;
+  background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.1);border-radius:5px;
+  padding:7px 3px 5px;cursor:pointer;text-align:center;transition:all .15s;position:relative;overflow:hidden;
 }
-.char-card.selected,.char-card:active{
-  border-color:var(--gold);background:rgba(245,200,66,.08);
-  transform:scale(1.06);box-shadow:0 8px 24px rgba(245,200,66,.25);
-}
-.char-card .chk{position:absolute;top:4px;right:6px;font-size:.7rem;color:var(--gold);opacity:0;transition:opacity .2s;}
-.char-card.selected .chk{opacity:1;}
-.char-emoji{font-size:1.8rem;display:block;margin-bottom:4px;}
-.char-name{font-size:.6rem;color:#c4b5fd;}
+.char-card:hover,.char-card.sel{border-color:#FFD700;background:rgba(255,215,0,.08);transform:translateY(-2px);}
+.char-card.sel::after{content:'▶';position:absolute;bottom:2px;right:4px;color:#FFD700;font-size:6px;}
+/* Mini preview canvas per card */
+.char-preview{display:block;width:44px;height:54px;margin:0 auto 3px;image-rendering:pixelated;}
+.char-nm{font-size:4.5px;color:#FFD700;}
+.char-cls{font-size:3.5px;color:#88AAFF;margin-top:1px;}
 
-/* Diff grid */
-.diff-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:400px;}
-.diff-card{
-  background:rgba(255,255,255,.04);border:1px solid rgba(168,85,247,.3);
-  border-radius:12px;padding:16px 10px;text-align:center;cursor:pointer;transition:all .2s;
-}
-.diff-card.selected,.diff-card:active{
-  border-color:var(--gold);background:rgba(245,200,66,.08);transform:translateY(-2px);
-}
-.diff-name{font-family:'Cinzel Decorative',serif;font-size:.85rem;color:var(--gold);}
-.diff-desc{font-size:.72rem;color:#a78bfa;margin-top:4px;}
+.subj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;width:min(500px,93vw);}
+.sbtn,.dbtn{background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.12);color:#fff;font-family:'Press Start 2P',monospace;font-size:5px;padding:7px 4px;cursor:pointer;border-radius:3px;transition:all .15s;text-align:center;}
+.sbtn:hover,.sbtn.sel{border-color:#44FFFF;background:rgba(68,255,255,.07);color:#44FFFF;}
+.diff-row{display:flex;gap:7px;}
+.dbtn{padding:8px 16px;}
+.dbtn[data-d=easy]:hover,.dbtn[data-d=easy].sel{border-color:#44FF88;color:#44FF88;background:rgba(68,255,136,.07);}
+.dbtn[data-d=med]:hover,.dbtn[data-d=med].sel{border-color:#FFD700;color:#FFD700;background:rgba(255,215,0,.07);}
+.dbtn[data-d=hard]:hover,.dbtn[data-d=hard].sel{border-color:#FF4444;color:#FF4444;background:rgba(255,68,68,.07);}
 
-/* Start btn */
-.btn-start{
-  background:linear-gradient(135deg,var(--accent),#5b0dc9);color:#fff;border:none;
-  padding:16px 48px;font-family:'Cinzel Decorative',serif;font-size:1.1rem;
-  border-radius:50px;cursor:pointer;letter-spacing:.15em;
-  box-shadow:0 4px 20px rgba(123,47,255,.45);
-  animation:heartbeat 2.5s ease-in-out infinite;
-}
-.btn-start:active{transform:scale(.95)!important;animation:none!important;}
-@keyframes heartbeat{
-  0%,100%{transform:scale(1);box-shadow:0 4px 20px rgba(123,47,255,.45);}
-  14%{transform:scale(1.04);box-shadow:0 8px 32px rgba(123,47,255,.7);}
-  28%{transform:scale(1);}42%{transform:scale(1.03);}
-}
+.start-btn{background:linear-gradient(135deg,#8B4513,#CD853F,#FFD700,#CD853F,#8B4513);background-size:300% 300%;animation:gshine 3s linear infinite;border:3px solid #FFD700;color:#1a0800;font-family:'Press Start 2P',monospace;font-size:10px;padding:13px 30px;cursor:pointer;border-radius:5px;margin-top:13px;box-shadow:0 4px 0 #5a2000,0 0 20px rgba(255,215,0,.3);transition:transform .1s;letter-spacing:1px;}
+.start-btn:hover{transform:translateY(-2px);}
+.start-btn:active{transform:translateY(2px);}
+@keyframes gshine{0%{background-position:0% 50%;}100%{background-position:300% 50%;}}
 
-/* ── GAME SCREEN ── */
-#gameScreen{
-  flex-direction:row;gap:14px;align-items:flex-start;justify-content:center;
-  padding:12px 12px 200px;min-height:100%;
-}
-@media(max-width:700px){
-  #gameScreen{flex-direction:column;align-items:center;padding-bottom:210px;}
-  .side-panel{flex-direction:row;flex-wrap:wrap;max-width:100%;min-width:unset;width:100%;}
-  .panel-box{flex:1;min-width:90px;}
-}
-#gameCanvas{
-  border:2px solid rgba(168,85,247,.4);border-radius:8px;display:block;
-  image-rendering:pixelated;touch-action:none;
-  box-shadow:0 0 40px rgba(123,47,255,.3);
-}
-.side-panel{display:flex;flex-direction:column;gap:12px;min-width:160px;max-width:180px;}
-.panel-box{background:rgba(255,255,255,.04);border:1px solid rgba(168,85,247,.25);border-radius:10px;padding:12px;}
-.panel-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.2em;color:#7c6fa8;margin-bottom:5px;}
-.panel-value{font-family:'Cinzel Decorative',serif;font-size:1.3rem;color:var(--gold);}
-.hp-bar-bg{background:rgba(255,255,255,.08);border-radius:4px;height:10px;overflow:hidden;margin-top:6px;}
-.hp-bar{height:100%;background:linear-gradient(90deg,var(--hp-red),#ff7777);border-radius:4px;transition:width .4s;}
-.char-display{font-size:3rem;text-align:center;line-height:1;filter:drop-shadow(0 0 10px rgba(168,85,247,.5));}
+/* GAME */
+#game-screen{background:#000;flex-direction:column;}
+#hud{width:100%;height:44px;min-height:44px;background:linear-gradient(180deg,rgba(0,0,0,.96),rgba(0,0,0,.55));border-bottom:2px solid rgba(255,215,0,.2);display:flex;align-items:center;padding:0 10px;gap:14px;flex-shrink:0;}
+.h-hp{display:flex;align-items:center;gap:3px;font-size:5px;color:#FF4444;}
+.hp-hearts{display:flex;gap:2px;}
+.hh{width:10px;height:10px;background:#FF4444;clip-path:polygon(50% 0%,100% 35%,80% 100%,50% 80%,20% 100%,0% 35%);transition:all .3s;box-shadow:0 0 4px #FF4444;}
+.hh.gone{background:#333;box-shadow:none;}
+.h-combo{font-size:5px;color:#FFD700;}
+.h-floor{font-size:5px;color:#44FFFF;}
+.h-score{font-size:5px;color:#44FF88;margin-left:auto;}
 
-/* ── D-PAD ── */
-#dpad{
-  position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
-  display:none;flex-direction:column;align-items:center;
-  z-index:9999;pointer-events:all;gap:0;
-  background:rgba(10,4,28,.65);border:1px solid rgba(168,85,247,.25);
-  border-radius:20px;padding:10px 12px 8px;backdrop-filter:blur(6px);
-}
-#dpad.visible{display:flex;}
-.dpad-row{display:flex;gap:4px;}
-.dpad-btn{
-  width:68px;height:68px;margin:3px;font-size:22px;border-radius:16px;
-  border:2px solid rgba(168,85,247,.45);background:rgba(20,8,45,.9);color:#d8c4ff;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:background .07s,transform .07s,border-color .07s;
-  user-select:none;touch-action:manipulation;
-  box-shadow:0 4px 16px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.07);
-}
-.dpad-btn:hover{background:rgba(123,47,255,.35);border-color:var(--gold);}
-.dpad-btn.pressed,.dpad-btn:active{background:rgba(245,200,66,.22);transform:scale(.85);border-color:var(--gold);}
-@media(max-width:700px){
-  #dpad{bottom:10px;}
-  .dpad-btn{width:62px;height:62px;font-size:20px;}
-}
+#canvas-wrap{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000;position:relative;}
+#gc{image-rendering:pixelated;image-rendering:crisp-edges;display:block;}
 
-/* ── QUESTION ── */
-#questionOverlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(10,6,20,.88);backdrop-filter:blur(10px);
-  z-index:200;align-items:center;justify-content:center;padding:20px;
-}
-#questionOverlay.active{display:flex;}
-.question-box{
-  background:linear-gradient(135deg,#1a0a2e,#0e0620);
-  border:1px solid rgba(245,200,66,.4);border-radius:20px;padding:28px;
-  max-width:540px;width:100%;
-  box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 40px rgba(123,47,255,.2);
-  animation:slideIn .3s ease-out;
-}
-@keyframes slideIn{from{transform:translateY(20px) scale(.95);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
-.q-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
-.q-icon{font-size:1.8rem;}
-.q-title{font-family:'Cinzel Decorative',serif;color:var(--gold);font-size:.85rem;letter-spacing:.12em;}
-.q-timer{margin-left:auto;font-family:'Cinzel Decorative',serif;font-size:1.5rem;color:var(--red);min-width:36px;text-align:right;}
-.q-text{font-size:1.05rem;line-height:1.6;color:#e2d9f3;margin-bottom:20px;min-height:52px;}
-.q-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-@media(max-width:440px){.q-options{grid-template-columns:1fr;}}
-.q-opt{
-  background:rgba(255,255,255,.05);border:1px solid rgba(168,85,247,.3);
-  border-radius:10px;padding:12px 14px;cursor:pointer;
-  font-family:'Crimson Pro',serif;font-size:1rem;color:#e2d9f3;
-  text-align:left;line-height:1.4;transition:all .15s;
-}
-.q-opt:hover{background:rgba(123,47,255,.2);border-color:var(--accent);transform:translateX(2px);}
-.q-opt.correct{background:rgba(34,197,94,.2);border-color:var(--green);color:#86efac;}
-.q-opt.wrong{background:rgba(232,53,53,.2);border-color:var(--red);color:#fca5a5;}
-.q-opt:disabled{cursor:default;pointer-events:none;}
-.q-feedback{margin-top:14px;text-align:center;font-size:.95rem;min-height:22px;font-style:italic;color:#c4b5fd;}
+/* MOBILE */
+#mob-ctrl{position:absolute;bottom:0;left:0;right:0;height:120px;pointer-events:none;display:none;}
+.mob-active #mob-ctrl{display:block;}
+.mob-active #canvas-wrap{padding-bottom:120px;}
+#joy-zone{position:absolute;bottom:12px;left:12px;width:96px;height:96px;pointer-events:all;}
+.joy-out{width:96px;height:96px;border-radius:50%;background:rgba(68,136,255,.06);border:2px solid rgba(68,136,255,.2);position:relative;}
+.joy-in{width:36px;height:36px;background:rgba(68,136,255,.3);border:2px solid #4488FF;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
+.dpad{position:absolute;bottom:18px;right:18px;display:grid;grid-template-areas:'. u .' 'l . r' '. d .';grid-template-columns:32px 32px 32px;grid-template-rows:32px 32px 32px;pointer-events:all;}
+.dp{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;border-radius:3px;}
+.dp:active{background:rgba(255,255,255,.25);}
+.dp[data-d=up]{grid-area:u;}.dp[data-d=left]{grid-area:l;}.dp[data-d=right]{grid-area:r;}.dp[data-d=down]{grid-area:d;}
 
-/* ── PAUSE ── */
-#pauseOverlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(10,6,20,.75);backdrop-filter:blur(5px);
-  z-index:150;align-items:center;justify-content:center;
-}
-#pauseOverlay.active{display:flex;}
-.pause-box{
-  background:linear-gradient(135deg,#1a0a2e,#0e0620);
-  border:1px solid rgba(168,85,247,.4);border-radius:20px;
-  padding:40px;text-align:center;gap:18px;
-  display:flex;flex-direction:column;align-items:center;
-}
-.pause-title{font-family:'Cinzel Decorative',serif;font-size:2rem;color:var(--gold);}
+/* QUESTION */
+#q-overlay{position:absolute;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;z-index:50;backdrop-filter:blur(4px);}
+#q-overlay.on{display:flex;}
+#q-box{background:linear-gradient(135deg,#110830,#071420);border:3px solid #FFD700;border-radius:10px;padding:18px;width:min(410px,93vw);box-shadow:0 0 40px rgba(255,215,0,.22),inset 0 0 30px rgba(0,0,0,.4);position:relative;overflow:hidden;}
+#q-box::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 31px,rgba(255,255,255,.015) 32px);pointer-events:none;}
+.qh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.qbadge{font-size:5px;color:#FFD700;border:1px solid rgba(255,215,0,.5);padding:3px 7px;border-radius:2px;background:rgba(255,215,0,.05);}
+.qtimer{font-size:9px;color:#44FFFF;font-variant-numeric:tabular-nums;}
+.qtimer.red{color:#FF4444;animation:tblink .5s step-end infinite;}
+@keyframes tblink{50%{opacity:0;}}
+/* Obstacle info */
+.qobstacle{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:7px 10px;background:rgba(255,100,0,.08);border:1px solid rgba(255,150,0,.25);border-radius:4px;}
+.qobs-icon{font-size:20px;}
+.qobs-text{font-size:5.5px;color:#FFB844;line-height:1.8;}
+.qtext{font-family:'VT323',monospace;font-size:20px;color:#fff;line-height:1.5;text-align:center;margin-bottom:13px;min-height:34px;}
+.qopts{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.qbtn{background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.15);color:#fff;font-family:'VT323',monospace;font-size:17px;padding:9px 7px;cursor:pointer;border-radius:5px;text-align:left;transition:all .12s;display:flex;align-items:flex-start;gap:5px;line-height:1.3;}
+.qbtn:hover{border-color:#FFD700;background:rgba(255,215,0,.08);transform:scale(1.02);}
+.qlbl{color:#FFD700;min-width:13px;font-weight:bold;}
+.qbtn.ok{border-color:#44FF88!important;background:rgba(68,255,136,.15)!important;}
+.qbtn.ng{border-color:#FF4444!important;background:rgba(255,68,68,.15)!important;animation:shk .3s;}
+@keyframes shk{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+.qexp{display:none;margin-top:9px;font-family:'VT323',monospace;font-size:15px;color:#ccc;line-height:1.4;padding:7px 9px;background:rgba(255,255,255,.03);border-left:2px solid #44FFFF;border-radius:2px;}
+.qnext{display:none;width:100%;margin-top:9px;background:rgba(68,255,136,.08);border:2px solid #44FF88;color:#44FF88;font-family:'Press Start 2P',monospace;font-size:7px;padding:9px;cursor:pointer;border-radius:4px;letter-spacing:1px;}
 
-/* ── RESULT ── */
-#resultScreen{gap:24px;padding:40px 20px;justify-content:center;}
-.result-title{font-family:'Cinzel Decorative',serif;font-size:clamp(1.5rem,5vw,3rem);text-align:center;}
-.result-title.win{color:var(--gold);text-shadow:0 0 30px rgba(245,200,66,.5);}
-.result-title.lose{color:var(--red);text-shadow:0 0 30px rgba(232,53,53,.5);}
-.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;max-width:480px;}
-.stat-box{background:rgba(255,255,255,.04);border:1px solid rgba(168,85,247,.25);border-radius:12px;padding:16px;text-align:center;}
-.stat-num{font-family:'Cinzel Decorative',serif;font-size:1.8rem;color:var(--gold);}
-.stat-lbl{font-size:.68rem;color:#7c6fa8;letter-spacing:.14em;text-transform:uppercase;margin-top:4px;}
-.stars{font-size:2rem;letter-spacing:4px;}
-.btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
-.btn-sec{
-  background:rgba(123,47,255,.15);border:1px solid rgba(168,85,247,.4);
-  color:#c4b5fd;padding:12px 26px;border-radius:50px;cursor:pointer;
-  font-family:'Cinzel Decorative',serif;font-size:.82rem;transition:all .2s;letter-spacing:.1em;
-}
-.btn-sec:hover{background:rgba(123,47,255,.3);transform:translateY(-1px);}
-.btn-sec:active{transform:scale(.95);}
-
-/* ── NOTIFICATION ── */
-#notif{
-  position:fixed;top:18px;left:50%;transform:translateX(-50%);
-  background:rgba(26,10,46,.95);border:1px solid var(--gold);
-  border-radius:10px;padding:9px 22px;
-  font-family:'Cinzel Decorative',serif;color:var(--gold);font-size:.88rem;
-  z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;
-}
-#notif.show{opacity:1;}
-#minimap{border:1px solid rgba(168,85,247,.3);border-radius:4px;display:block;}
+/* OVERLAYS */
+#lvlup{position:absolute;inset:0;background:rgba(0,0,0,.9);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:60;gap:10px;}
+#lvlup.on{display:flex;}
+.lvlup-t{font-size:clamp(16px,5vw,28px);color:#FFD700;text-shadow:0 0 30px #FFD700;animation:pp .5s ease-in-out infinite alternate;}
+@keyframes pp{from{transform:scale(1);}to{transform:scale(1.05);}}
+#go-screen{position:absolute;inset:0;background:rgba(0,0,0,.93);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:60;gap:12px;}
+#go-screen.on{display:flex;}
+.go-t{font-size:clamp(18px,5vw,30px);color:#FF4444;text-shadow:0 0 20px #FF4444;}
+.go-stats{font-family:'VT323',monospace;font-size:20px;color:#aaa;text-align:center;line-height:2.2;}
+.go-stats span{color:#FFD700;}
+.gobtn{background:rgba(255,255,255,.05);border:2px solid #FFD700;color:#FFD700;font-family:'Press Start 2P',monospace;font-size:8px;padding:11px 18px;cursor:pointer;border-radius:3px;transition:all .2s;}
+.gobtn:hover{background:rgba(255,215,0,.12);transform:scale(1.04);}
+.gobtn.grn{border-color:#44FF88;color:#44FF88;}
+.gobtn.grn:hover{background:rgba(68,255,136,.1);}
+.rune-deco{position:absolute;font-size:24px;opacity:.08;pointer-events:none;animation:flrune var(--d) ease-in-out infinite;}
+@keyframes flrune{0%,100%{transform:translateY(0) rotate(0deg);opacity:.06;}50%{transform:translateY(-16px) rotate(8deg);opacity:.16;}}
 </style>
 </head>
 <body>
+<div id="app">
 
-<div id="notif"></div>
+<!-- MENU -->
+<div id="menu-screen" class="screen active">
+  <span class="rune-deco" style="top:7%;left:3%;--d:3.2s">⚔️</span>
+  <span class="rune-deco" style="top:15%;right:5%;--d:4.1s">✨</span>
+  <span class="rune-deco" style="bottom:10%;left:5%;--d:3.8s">🔮</span>
+  <span class="rune-deco" style="bottom:18%;right:4%;--d:4.6s">⚡</span>
 
-<!-- ══ MENU ══ -->
-<div class="screen" id="menuScreen">
-  <div class="game-title">🎮 MAZE OF WISDOM</div>
-  <div class="subtitle">Mê Cung Tri Tuệ</div>
+  <div class="logo-wrap">
+    <span class="logo-main">⚔️ PIXEL LEGEND ⚔️</span>
+    <span class="logo-sub">MÊ CUNG TRI THỨC</span>
+  </div>
 
-  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;max-width:580px">
-    <div class="section-title">✨ Chọn Nhân Vật</div>
-    <div class="char-grid" id="charGrid">
-      <div class="char-card selected" data-char="0"><span class="chk">✓</span><span class="char-emoji">⚔️</span><span class="char-name">Hiệp Sĩ</span></div>
-      <div class="char-card" data-char="1"><span class="chk">✓</span><span class="char-emoji">👑</span><span class="char-name">Nữ Thần</span></div>
-      <div class="char-card" data-char="2"><span class="chk">✓</span><span class="char-emoji">🧚</span><span class="char-name">Tiên Nữ</span></div>
-      <div class="char-card" data-char="3"><span class="chk">✓</span><span class="char-emoji">🔮</span><span class="char-name">Pháp Sư</span></div>
-      <div class="char-card" data-char="4"><span class="chk">✓</span><span class="char-emoji">⚡</span><span class="char-name">Thần Sấm</span></div>
-      <div class="char-card" data-char="5"><span class="chk">✓</span><span class="char-emoji">🐎</span><span class="char-name">Ngựa</span></div>
-      <div class="char-card" data-char="6"><span class="chk">✓</span><span class="char-emoji">🐰</span><span class="char-name">Thỏ</span></div>
+  <div class="sec-lbl">▶ CHỌN NHÂN VẬT</div>
+  <div class="char-grid" id="char-grid">
+    <div class="char-card sel" data-c="knight" onclick="selChar(this)">
+      <canvas class="char-preview" id="prev-knight"></canvas>
+      <div class="char-nm">HIỆP SĨ</div><div class="char-cls">Tank · +GIÁP</div>
+    </div>
+    <div class="char-card" data-c="mage" onclick="selChar(this)">
+      <canvas class="char-preview" id="prev-mage"></canvas>
+      <div class="char-nm">PHÁP SƯ</div><div class="char-cls">Mage · +PHÉP</div>
+    </div>
+    <div class="char-card" data-c="archer" onclick="selChar(this)">
+      <canvas class="char-preview" id="prev-archer"></canvas>
+      <div class="char-nm">XẠ THỦ</div><div class="char-cls">Range · +TẦM XA</div>
+    </div>
+    <div class="char-card" data-c="priestess" onclick="selChar(this)">
+      <canvas class="char-preview" id="prev-priestess"></canvas>
+      <div class="char-nm">NỮ TỪ TẾ</div><div class="char-cls">Healer · +HỒI</div>
+    </div>
+    <div class="char-card" data-c="rogue" onclick="selChar(this)">
+      <canvas class="char-preview" id="prev-rogue"></canvas>
+      <div class="char-nm">THÍCH KHÁCH</div><div class="char-cls">Speed · +TỐC</div>
+    </div>
+    <div class="char-card" data-c="berserker" onclick="selChar(this)">
+      <canvas class="char-preview" id="prev-berserker"></canvas>
+      <div class="char-nm">CUỒNG CHIẾN</div><div class="char-cls">DPS · +SÁT</div>
+    </div>
+    <div class="char-card" data-c="shaman" onclick="selChar(this)">
+      <canvas class="char-preview" id="prev-shaman"></canvas>
+      <div class="char-nm">PHÁP SƯ ĐỀN</div><div class="char-cls">Support · +BÙA</div>
+    </div>
+    <div class="char-card" data-c="ranger" onclick="selChar(this)">
+      <canvas class="char-preview" id="prev-ranger"></canvas>
+      <div class="char-nm">KIẾM KHÁCH</div><div class="char-cls">Blade · +KIẾM</div>
     </div>
   </div>
 
-  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;max-width:420px">
-    <div class="section-title">⚡ Độ Khó</div>
-    <div class="diff-grid" id="diffGrid">
-      <div class="diff-card selected" data-diff="easy"><div class="diff-name">🟢 Dễ</div><div class="diff-desc">7×7 · 30s</div></div>
-      <div class="diff-card" data-diff="medium"><div class="diff-name">🟡 Thường</div><div class="diff-desc">11×11 · 20s</div></div>
-      <div class="diff-card" data-diff="hard"><div class="diff-name">🔴 Khó</div><div class="diff-desc">15×15 · 15s</div></div>
-    </div>
+  <div class="sec-lbl">▶ MÔN HỌC</div>
+  <div class="subj-grid">
+    <button class="sbtn sel" data-s="math" onclick="selSubj(this)">📐 TOÁN HỌC</button>
+    <button class="sbtn" data-s="lit" onclick="selSubj(this)">📚 VĂN HỌC</button>
+    <button class="sbtn" data-s="sci" onclick="selSubj(this)">🔬 KHOA HỌC</button>
+    <button class="sbtn" data-s="hist" onclick="selSubj(this)">🏛️ LỊCH SỬ</button>
+    <button class="sbtn" data-s="eng" onclick="selSubj(this)">🌐 TIẾNG ANH</button>
+    <button class="sbtn" data-s="gen" onclick="selSubj(this)">🎯 TỔNG HỢP</button>
   </div>
 
-  <button class="btn-start" id="startBtn">⚔ Bắt Đầu Hành Trình</button>
+  <div class="sec-lbl">▶ ĐỘ KHÓ</div>
+  <div class="diff-row">
+    <button class="dbtn sel" data-d="easy" onclick="selDiff(this)">🌿 DỄ</button>
+    <button class="dbtn" data-d="med" onclick="selDiff(this)">🏰 TRUNG</button>
+    <button class="dbtn" data-d="hard" onclick="selDiff(this)">🔥 KHÓ</button>
+  </div>
+  <button class="start-btn" onclick="startGame()">⚔️ BẮT ĐẦU PHIÊU LƯU ⚔️</button>
 </div>
 
-<!-- ══ D-PAD ══ -->
-<div id="dpad">
-  <div class="dpad-row"><div class="dpad-btn" data-dir="up">⬆</div></div>
-  <div class="dpad-row">
-    <div class="dpad-btn" data-dir="left">⬅</div>
-    <div class="dpad-btn" data-dir="down">⬇</div>
-    <div class="dpad-btn" data-dir="right">➡</div>
+<!-- GAME -->
+<div id="game-screen" class="screen">
+  <div id="hud">
+    <div class="h-hp">HP <div class="hp-hearts" id="hp-hearts"></div></div>
+    <div class="h-combo">COMBO: <span id="combo-v">0</span></div>
+    <div class="h-floor">TẦNG: <span id="floor-v">1</span></div>
+    <div class="h-score">⭐ <span id="score-v">0</span></div>
   </div>
-</div>
-
-<!-- ══ GAME ══ -->
-<div class="screen" id="gameScreen">
-  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-    <canvas id="gameCanvas"></canvas>
-  </div>
-  <div class="side-panel">
-    <div class="panel-box" style="text-align:center">
-      <div class="char-display" id="charDisplay">⚔️</div>
-      <div style="font-size:.72rem;color:#c4b5fd;margin-top:4px" id="charName">Hiệp Sĩ</div>
+  <div id="canvas-wrap"><canvas id="gc"></canvas></div>
+  <div id="mob-ctrl">
+    <div id="joy-zone"><div class="joy-out" id="joy-out"><div class="joy-in" id="joy-in"></div></div></div>
+    <div class="dpad">
+      <div class="dp" data-d="up">▲</div><div class="dp" data-d="left">◀</div>
+      <div class="dp" data-d="right">▶</div><div class="dp" data-d="down">▼</div>
     </div>
-    <div class="panel-box">
-      <div class="panel-label">HP</div>
-      <div class="panel-value" id="hpVal">100</div>
-      <div class="hp-bar-bg"><div class="hp-bar" id="hpBar" style="width:100%"></div></div>
-    </div>
-    <div class="panel-box"><div class="panel-label">Điểm</div><div class="panel-value" id="scoreVal">0</div></div>
-    <div class="panel-box"><div class="panel-label">Màn</div><div class="panel-value" id="levelVal">1</div></div>
-    <div class="panel-box">
-      <div class="panel-label">Bản đồ</div>
-      <canvas id="minimap" width="150" height="150"></canvas>
-    </div>
-    <div class="panel-box" style="text-align:center">
-      <button class="btn-sec" id="pauseBtn" style="font-size:.68rem;padding:8px 16px">⏸ Tạm Dừng</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ QUESTION ══ -->
-<div id="questionOverlay">
-  <div class="question-box">
-    <div class="q-header">
-      <span class="q-icon">🧩</span>
-      <div>
-        <div class="q-title">Thử Thách Trí Tuệ</div>
-        <div style="font-size:.7rem;color:#7c6fa8;margin-top:2px">Trả lời đúng để tiếp tục!</div>
-      </div>
-      <div class="q-timer" id="qTimer">20</div>
-    </div>
-    <div class="q-text" id="qText"></div>
-    <div class="q-options" id="qOptions"></div>
-    <div class="q-feedback" id="qFeedback"></div>
-  </div>
-</div>
-
-<!-- ══ PAUSE ══ -->
-<div id="pauseOverlay">
-  <div class="pause-box">
-    <div class="pause-title">⏸ Tạm Dừng</div>
-    <div style="color:#c4b5fd;font-size:.95rem">Game đang tạm dừng</div>
-    <button class="btn-start" id="resumeBtn" style="font-size:.9rem;padding:12px 32px;animation:none">▶ Tiếp Tục</button>
-    <button class="btn-sec" id="pauseMenuBtn">🏠 Menu</button>
   </div>
 </div>
 
-<!-- ══ RESULT ══ -->
-<div class="screen" id="resultScreen">
-  <div class="result-title" id="resultTitle">🏆 Chiến Thắng!</div>
-  <div class="stars" id="resultStars">⭐⭐⭐</div>
-  <div class="result-stats">
-    <div class="stat-box"><div class="stat-num" id="resScore">0</div><div class="stat-lbl">Điểm</div></div>
-    <div class="stat-box"><div class="stat-num" id="resCorrect">0</div><div class="stat-lbl">Đúng</div></div>
-    <div class="stat-box"><div class="stat-num" id="resTime">0</div><div class="stat-lbl">Giây</div></div>
+<!-- QUESTION POPUP -->
+<div id="q-overlay">
+  <div id="q-box">
+    <div class="qh"><div class="qbadge" id="qbadge">📐 TOÁN</div><div class="qtimer" id="qtimer">∞</div></div>
+    <div class="qobstacle" id="qobstacle">
+      <span class="qobs-icon" id="qobs-icon">🧱</span>
+      <div class="qobs-text" id="qobs-text">Trả lời đúng để vượt qua!</div>
+    </div>
+    <div class="qtext" id="qtext"></div>
+    <div class="qopts" id="qopts"></div>
+    <div class="qexp" id="qexp"></div>
+    <button class="qnext" id="qnext" onclick="closeQ()">TIẾP TỤC →</button>
   </div>
-  <div class="btn-row">
-    <button class="btn-start" id="nextBtn" style="font-size:.9rem;padding:12px 28px;animation:none">▶ Màn Tiếp</button>
-    <button class="btn-sec" id="restartBtn">🔄 Chơi Lại</button>
-    <button class="btn-sec" id="resultMenuBtn">🏠 Menu</button>
-  </div>
+</div>
+
+<!-- LEVEL UP -->
+<div id="lvlup">
+  <div class="lvlup-t">🌟 LÊN TẦNG! 🌟</div>
+  <div style="font-family:'VT323',monospace;font-size:20px;color:#aaa;" id="lvlup-info"></div>
+</div>
+
+<!-- GAME OVER -->
+<div id="go-screen">
+  <div class="go-t">💀 GAME OVER 💀</div>
+  <div class="go-stats" id="go-stats"></div>
+  <button class="gobtn" onclick="backMenu()">🏠 MENU</button>
+  <button class="gobtn grn" onclick="startGame()">🔄 CHƠI LẠI</button>
+</div>
 </div>
 
 <script>
-'use strict';
-/* ══ DATA ══ */
-const CHARS=[
-  {emoji:'⚔️',name:'Hiệp Sĩ', hp:100,speed:1  },
-  {emoji:'👑',name:'Nữ Thần', hp:120,speed:.9  },
-  {emoji:'🧚',name:'Tiên Nữ',hp:80, speed:1.2 },
-  {emoji:'🔮',name:'Pháp Sư', hp:90, speed:1   },
-  {emoji:'⚡',name:'Thần Sấm',hp:85, speed:1.3 },
-  {emoji:'🐎',name:'Ngựa',   hp:110,speed:1.2 },
-  {emoji:'🐰',name:'Thỏ',    hp:75, speed:1.4 },
-];
-const DIFFS={
-  easy:  {size:7, time:30,cells:3,hpLoss:15},
-  medium:{size:11,time:20,cells:5,hpLoss:20},
-  hard:  {size:15,time:15,cells:8,hpLoss:25},
+// ================================================================
+// PIXEL CHARACTER RENDERER - Full detailed human characters
+// ================================================================
+// Each character drawn with: head, hair/helmet, face, body armor,
+// arms, legs, weapon/accessory - all class-specific
+// ================================================================
+
+const CHAR_DEFS = {
+  knight: {
+    name:'HIỆP SĨ', cls:'Tank', spd:2.3,
+    // Color palette
+    skin:'#F4C08C', skinD:'#D4986A',
+    hair:'#5A3010',
+    helm:'#8899BB', helmD:'#667799', helmH:'#AABBDD',
+    armor:'#7788AA', armorD:'#556688', armorH:'#99AACC',
+    belt:'#4A3020',
+    leg:'#556688', legD:'#334466',
+    boot:'#334455',
+    weapon:'#CCDDEE', weaponH:'#FFFFFF', weaponD:'#8899BB',
+    cape:'#CC2222', capeD:'#AA1111',
+    accent:'#FFD700',
+  },
+  mage: {
+    name:'PHÁP SƯ', cls:'Mage', spd:2.1,
+    skin:'#EEC9A0', skinD:'#C8996A',
+    hair:'#CCAAFF',
+    helm:'#7744BB', helmD:'#552299', helmH:'#9966DD',
+    armor:'#5533AA', armorD:'#331177', armorH:'#7755CC',
+    belt:'#222244',
+    leg:'#3322AA', legD:'#221188',
+    boot:'#221133',
+    weapon:'#88DDFF', weaponH:'#FFFFFF', weaponD:'#4499CC',
+    cape:'#441199', capeD:'#330077',
+    accent:'#BB88FF',
+    starColor:'#DDBBFF',
+  },
+  archer: {
+    name:'XẠ THỦ', cls:'Range', spd:2.8,
+    skin:'#F0C070', skinD:'#C89050',
+    hair:'#664422',
+    helm:'#556633', helmD:'#334422', helmH:'#778844',
+    armor:'#5A6633', armorD:'#3A4422', armorH:'#7A8844',
+    belt:'#3A2A1A',
+    leg:'#3A4422', legD:'#2A3311',
+    boot:'#2A2211',
+    weapon:'#8B5E3C', weaponH:'#C0844A', weaponD:'#5A3010',
+    cape:'#3A5533', capeD:'#2A3322',
+    accent:'#88FF44',
+  },
+  priestess: {
+    name:'NỮ TỪ TẾ', cls:'Healer', spd:2.2,
+    skin:'#FFD9C0', skinD:'#E0AA88',
+    hair:'#FFE080',
+    helm:'#FFFFFF', helmD:'#DDDDEE', helmH:'#FFFFFF',
+    armor:'#EEEEFF', armorD:'#CCCCEE', armorH:'#FFFFFF',
+    belt:'#AAAACC',
+    leg:'#CCCCEE', legD:'#AAAACC',
+    boot:'#888899',
+    weapon:'#FFDDAA', weaponH:'#FFFFFF', weaponD:'#CCAA66',
+    cape:'#DDAAFF', capeD:'#BB88EE',
+    accent:'#FFAAFF',
+    crossColor:'#FF8888',
+  },
+  rogue: {
+    name:'THÍCH KHÁCH', cls:'Speed', spd:3.2,
+    skin:'#C8AA80', skinD:'#A07A50',
+    hair:'#222222',
+    helm:'#222233', helmD:'#111122', helmH:'#333344',
+    armor:'#2A2A3A', armorD:'#1A1A2A', armorH:'#3A3A4A',
+    belt:'#441100',
+    leg:'#1A1A2A', legD:'#0A0A18',
+    boot:'#111111',
+    weapon:'#888899', weaponH:'#CCCCDD', weaponD:'#555566',
+    cape:'#330022', capeD:'#220011',
+    accent:'#FF4488',
+  },
+  berserker: {
+    name:'CUỒNG CHIẾN', cls:'DPS', spd:2.0,
+    skin:'#D4886A', skinD:'#B86848',
+    hair:'#CC4400',
+    helm:null, // no helmet - wild hair
+    armor:'#663322', armorD:'#441100', armorH:'#884433',
+    belt:'#331100',
+    leg:'#441100', legD:'#2A0A00',
+    boot:'#2A1000',
+    weapon:'#BB6633', weaponH:'#EE9955', weaponD:'#663300',
+    cape:'#882200', capeD:'#661100',
+    accent:'#FF6600',
+    tattoo:'#CC2200',
+  },
+  shaman: {
+    name:'PHÁP SƯ ĐỀN', cls:'Support', spd:2.2,
+    skin:'#AACCAA', skinD:'#88AA88',
+    hair:'#005533',
+    helm:'#226633', helmD:'#114422', helmH:'#338844',
+    armor:'#1A4422', armorD:'#0A2A11', armorH:'#2A5533',
+    belt:'#4A3300',
+    leg:'#1A3311', legD:'#0A1A08',
+    boot:'#0A1A08',
+    weapon:'#44AA55', weaponH:'#88EE66', weaponD:'#228833',
+    cape:'#116622', capeD:'#0A4411',
+    accent:'#44FF88',
+    totemColor:'#FFAA44',
+  },
+  ranger: {
+    name:'KIẾM KHÁCH', cls:'Blade', spd:2.6,
+    skin:'#EEB888', skinD:'#C89060',
+    hair:'#AA7722',
+    helm:'#997755', helmD:'#775533', helmH:'#BBAA77',
+    armor:'#886644', armorD:'#664422', armorH:'#AA8866',
+    belt:'#553322',
+    leg:'#664433', legD:'#442211',
+    boot:'#442211',
+    weapon:'#CCAA66', weaponH:'#EEDD99', weaponD:'#886633',
+    cape:'#885533', capeD:'#663311',
+    accent:'#FFCC44',
+  }
 };
-const QUESTIONS=[
-  {q:'Việt Nam có bao nhiêu tỉnh thành?',opts:['63','64','60','58'],ans:0},
-  {q:'Thủ đô của Pháp là gì?',opts:['Berlin','Madrid','Paris','Rome'],ans:2},
-  {q:'2⁸ bằng bao nhiêu?',opts:['128','256','512','64'],ans:1},
-  {q:'Nước nào lớn nhất thế giới (diện tích)?',opts:['Canada','Trung Quốc','Mỹ','Nga'],ans:3},
-  {q:'Hóa học: H₂O là công thức của?',opts:['Muối','Nước','Oxy','Hydro'],ans:1},
-  {q:'1 + 1 × 2 + 1 = ?',opts:['4','5','6','3'],ans:0},
-  {q:'Ngôn ngữ lập trình do Guido van Rossum tạo?',opts:['Java','Python','C++','Ruby'],ans:1},
-  {q:'Hành tinh lớn nhất hệ mặt trời?',opts:['Sao Thổ','Sao Mộc','Sao Hải Vương','Trái Đất'],ans:1},
-  {q:'Căn bậc hai của 144?',opts:['10','14','12','11'],ans:2},
-  {q:'Ai viết "Truyện Kiều"?',opts:['Hồ Xuân Hương','Nguyễn Du','Nguyễn Trãi','Tố Hữu'],ans:1},
-  {q:'Năm hiện tại (Dương lịch)?',opts:['2023','2024','2025','2026'],ans:3},
-  {q:'Màu nào có bước sóng dài nhất?',opts:['Tím','Xanh lá','Đỏ','Vàng'],ans:2},
-  {q:'Đơn vị tiền tệ Nhật Bản?',opts:['Won','Yuan','Yen','Bath'],ans:2},
-  {q:'Núi cao nhất thế giới?',opts:['K2','Everest','Kangchenjunga','Lhotse'],ans:1},
-  {q:'Số nguyên tố tiếp sau 11?',opts:['12','13','14','15'],ans:1},
-  {q:'Ngôn ngữ có nhiều người nói nhất?',opts:['Anh','Tây Ban Nha','Hindi','Trung'],ans:3},
-  {q:'Bao nhiêu giây trong 1 giờ?',opts:['1800','3600','7200','600'],ans:1},
-  {q:'Tốc độ ánh sáng (km/s)?',opts:['100,000','300,000','500,000','1,000,000'],ans:1},
-  {q:'DNA viết tắt của?',opts:['Deoxyribonucleic Acid','Diribonucleic','Deoxyribose Acid','None'],ans:0},
-  {q:'Ai phát minh ra điện thoại?',opts:['Edison','Tesla','Bell','Marconi'],ans:2},
-  {q:'Đại dương lớn nhất thế giới?',opts:['Đại Tây Dương','Ấn Độ Dương','Thái Bình Dương','Bắc Băng Dương'],ans:2},
-  {q:'Số Pi xấp xỉ bằng?',opts:['3.14','2.71','1.41','1.73'],ans:0},
-  {q:'Nguyên tố ký hiệu Au là?',opts:['Bạc','Đồng','Vàng','Nhôm'],ans:2},
-  {q:'Thủ đô Nhật Bản?',opts:['Osaka','Kyoto','Hiroshima','Tokyo'],ans:3},
+
+// ================================================================
+// DRAW CHARACTER ON CANVAS (pixel art, ~20x28 px logical)
+// ================================================================
+// Scale s = pixels per "dot"
+function drawChar(ctx, ch, x, y, dir, frame, s, state='idle') {
+  const C = CHAR_DEFS[ch];
+  if(!C) return;
+  s = s||2;
+
+  // Animation offsets
+  const walkCycle = Math.floor(frame/6)%4; // 0-3
+  const legSwing = (walkCycle===1||walkCycle===3) ? 1 : 0;
+  const armSwing = (walkCycle===0||walkCycle===2) ? 1 : 0;
+  const bob = (state==='idle') ? Math.sin(frame*0.08)*0.5 : 0;
+  const bodyY = Math.round(bob);
+
+  // Flip for left direction
+  ctx.save();
+  if(dir==='left') {
+    ctx.translate(x + 10*s, y);
+    ctx.scale(-1, 1);
+    x = 0; y = 0;
+  } else {
+    ctx.translate(x, y);
+    x=0; y=0;
+  }
+
+  function px(rx, ry, w, h, color, alpha) {
+    if(!color) return;
+    ctx.globalAlpha = alpha||1;
+    ctx.fillStyle = color;
+    ctx.fillRect(rx*s, (ry+bodyY)*s, w*s, h*s);
+    ctx.globalAlpha = 1;
+  }
+
+  // ---- CAPE (behind body) ----
+  if(C.cape) {
+    const capeLen = 10 + Math.sin(frame*0.1)*1;
+    // cape left
+    px(2, 8, 2, capeLen, C.capeD);
+    // cape right
+    px(7, 8, 2, capeLen, C.cape);
+    // cape center
+    px(4, 8, 3, capeLen-1, C.cape);
+  }
+
+  // ---- LEGS ----
+  const legOff1 = (state==='walk') ? (legSwing?-1:1) : 0;
+  const legOff2 = (state==='walk') ? (legSwing?1:-1) : 0;
+  // Left leg
+  px(3, 18+legOff1, 2, 4, C.leg);
+  px(3, 22+legOff1, 2, 2, C.legD);
+  // Boot left
+  px(2, 24+legOff1, 3, 2, C.boot);
+  // Right leg
+  px(6, 18+legOff2, 2, 4, C.legD);
+  px(6, 22+legOff2, 2, 2, C.leg);
+  // Boot right
+  px(6, 24+legOff2, 3, 2, C.boot);
+
+  // ---- BODY / ARMOR ----
+  px(3, 10, 5, 8, C.armor);
+  // Armor highlights
+  px(3, 10, 1, 7, C.armorH, 0.4);
+  px(7, 10, 1, 7, C.armorD, 0.5);
+  // Armor trim detail
+  px(3, 10, 5, 1, C.armorH, 0.5);
+  px(3, 17, 5, 1, C.armorD, 0.5);
+  // Belt
+  px(3, 17, 5, 1, C.belt);
+  // Chest center line
+  if(ch==='knight') { px(5, 11, 1, 6, C.armorD, 0.4); }
+  if(ch==='mage') {
+    // Robe decorations
+    px(5, 12, 1, 1, C.accent, 0.8);
+    px(5, 14, 1, 1, C.accent, 0.8);
+    px(5, 16, 1, 1, C.accent, 0.8);
+  }
+  if(ch==='priestess') {
+    // Cross emblem
+    px(5, 12, 1, 4, C.crossColor||'#FF8888');
+    px(4, 13, 3, 1, C.crossColor||'#FF8888');
+  }
+  if(ch==='berserker') {
+    // Scar/tattoo
+    px(4, 11, 1, 3, C.tattoo, 0.6);
+    px(6, 13, 1, 2, C.tattoo, 0.5);
+  }
+  if(ch==='shaman') {
+    // Totem symbol
+    px(5, 12, 1, 1, C.totemColor);
+    px(4, 13, 3, 1, C.totemColor, 0.7);
+    px(5, 14, 1, 2, C.totemColor, 0.5);
+  }
+
+  // ---- ARMS ----
+  const armOff = (state==='walk') ? (armSwing?-1:1)*0.5 : 0;
+  // Left arm
+  px(1, 10+armOff, 2, 5, C.armor);
+  px(1, 10+armOff, 1, 4, C.armorD, 0.4);
+  // Left hand
+  px(1, 15+armOff, 2, 2, C.skin);
+  // Right arm
+  px(8, 10-armOff, 2, 5, C.armor);
+  px(9, 10-armOff, 1, 4, C.armorH, 0.3);
+  // Right hand
+  px(8, 15-armOff, 2, 2, C.skin);
+
+  // ---- WEAPON / ITEM ----
+  if(ch==='knight') {
+    // Sword (right side)
+    px(10, 8, 1, 12, C.weapon); // blade
+    px(10, 8, 1, 1, C.weaponH, 0.8); // tip
+    px(9, 13, 3, 1, C.weaponD); // crossguard
+    px(10, 14, 1, 2, C.armorD); // handle
+    // Shield left
+    px(0, 11, 2, 5, C.helm); // shield
+    px(0, 11, 1, 5, C.helmH, 0.4);
+    px(0, 13, 2, 1, C.accent, 0.8); // emblem
+  } else if(ch==='mage') {
+    // Staff
+    px(10, 6, 1, 14, C.weaponD); // staff pole
+    // Crystal orb
+    px(9, 4, 3, 3, C.weapon, 0.9);
+    px(10, 4, 1, 1, C.weaponH, 0.8); // orb highlight
+    // Magic sparkles
+    const sp = Math.sin(frame*0.2)*2;
+    px(8+Math.round(sp), 5, 1, 1, C.starColor, 0.7);
+    px(11-Math.round(sp), 7, 1, 1, C.starColor, 0.5);
+  } else if(ch==='archer') {
+    // Bow
+    ctx.save();
+    ctx.strokeStyle = C.weapon;
+    ctx.lineWidth = s;
+    ctx.beginPath();
+    ctx.arc((10)*s, (12)*s, 5*s, -Math.PI*0.6, Math.PI*0.6);
+    ctx.stroke();
+    // Bowstring
+    ctx.strokeStyle = C.weaponH;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(10*s, 9*s); ctx.lineTo(10*s, 15*s);
+    ctx.stroke();
+    ctx.restore();
+    // Arrow
+    px(10, 11, 1, 6, '#CCBB88');
+    px(10, 11, 1, 1, '#886644'); // arrowhead
+  } else if(ch==='priestess') {
+    // Holy wand
+    px(10, 7, 1, 12, C.weaponD);
+    // Star top
+    px(9, 5, 3, 3, C.weapon, 0.8);
+    px(10, 4, 1, 5, C.weapon);
+    px(8, 6, 5, 1, C.weapon);
+    px(10, 5, 1, 1, '#FFFFFF', 0.9);
+    // Holy light
+    const hl = 0.3+Math.sin(frame*0.15)*0.25;
+    px(9, 5, 3, 3, '#FFFFFF', hl*0.5);
+  } else if(ch==='rogue') {
+    // Dual daggers
+    px(10, 11, 1, 7, C.weapon);
+    px(10, 11, 1, 1, C.weaponH);
+    px(0, 9, 1, 6, C.weapon);
+    px(0, 9, 1, 1, C.weaponH);
+    // Shadow cloak effect
+    px(0, 10, 11, 1, '#000000', 0.08);
+  } else if(ch==='berserker') {
+    // Large axe
+    px(10, 7, 1, 13, C.weaponD); // handle
+    px(9, 7, 4, 5, C.weapon); // blade
+    px(9, 7, 4, 1, C.weaponH, 0.7);
+    px(12, 8, 1, 3, C.weaponH, 0.4);
+  } else if(ch==='shaman') {
+    // Totem staff with orb
+    px(10, 5, 1, 15, C.weaponD);
+    px(8, 4, 4, 4, C.weapon, 0.8);
+    px(9, 3, 2, 6, C.weapon);
+    const tc = C.totemColor;
+    px(9, 5, 2, 2, tc, 0.9);
+    // Floating runes
+    const roff = Math.sin(frame*0.12)*1.5;
+    px(8, 8+Math.round(roff), 1, 1, tc, 0.7);
+    px(12, 10-Math.round(roff), 1, 1, tc, 0.5);
+  } else if(ch==='ranger') {
+    // Elegant sword
+    px(10, 9, 1, 10, C.weapon);
+    px(10, 9, 1, 1, C.weaponH, 0.9);
+    px(9, 12, 3, 1, C.weaponD); // guard
+    px(10, 13, 1, 3, C.armorD); // handle
+    // Sword glow
+    px(10, 9, 1, 10, C.accent, 0.15);
+  }
+
+  // ---- HEAD ----
+  // Neck
+  px(5, 7, 1, 2, C.skinD);
+
+  // HELMET / HAIR FIRST
+  if(C.helm) {
+    // Helmet base
+    px(3, 2, 5, 5, C.helm);
+    // Helmet highlights
+    px(3, 2, 5, 1, C.helmH, 0.6);
+    px(3, 2, 1, 5, C.helmH, 0.4);
+    px(7, 3, 1, 4, C.helmD, 0.5);
+    // Helmet details per class
+    if(ch==='knight') {
+      // Visor
+      px(3, 4, 5, 2, C.helmD, 0.6);
+      px(4, 4, 3, 1, '#000000', 0.3); // visor slit
+      // Plume
+      px(5, 0, 1, 3, C.cape);
+      px(5, 0, 1, 1, '#FFAAAA');
+    } else if(ch==='mage') {
+      // Pointed wizard hat
+      // Hat brim
+      px(2, 6, 7, 1, C.helm);
+      px(2, 7, 7, 1, C.helmD);
+      // Hat cone
+      px(4, 3, 3, 4, C.helm);
+      px(5, 1, 1, 3, C.helm);
+      px(5, 0, 1, 1, C.accent); // star tip
+      // Hat band
+      px(3, 6, 5, 1, C.accent, 0.6);
+    } else if(ch==='archer') {
+      // Ranger hood
+      px(3, 1, 5, 6, C.helm);
+      px(3, 2, 1, 4, C.helmH, 0.3);
+      px(2, 4, 1, 2, C.helm); // side flap
+      px(8, 4, 1, 2, C.helm);
+    } else if(ch==='priestess') {
+      // Holy circlet/veil
+      px(3, 3, 5, 4, C.helm);
+      px(3, 3, 5, 1, C.armorH, 0.7);
+      // Veil sides
+      px(2, 4, 1, 6, C.helmD, 0.6);
+      px(8, 4, 1, 6, C.helmD, 0.6);
+      // Halo
+      ctx.save();
+      ctx.strokeStyle = C.accent;
+      ctx.lineWidth = s*0.5;
+      ctx.globalAlpha = 0.5+Math.sin(frame*0.1)*0.3;
+      ctx.beginPath();
+      ctx.arc(5.5*s, 2*s, 3*s, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    } else if(ch==='shaman') {
+      // Tribal headgear
+      px(3, 2, 5, 5, C.helm);
+      // Feathers
+      px(3, 0, 1, 3, '#FF6600'); // orange feather
+      px(5, -1, 1, 4, '#FFFF00'); // yellow
+      px(7, 0, 1, 3, '#FF3300'); // red
+      // Beads
+      px(3, 3, 1, 1, C.totemColor, 0.9);
+      px(7, 3, 1, 1, C.totemColor, 0.9);
+    } else if(ch==='ranger') {
+      // Samurai headband
+      px(3, 3, 5, 5, C.helm);
+      // Headband
+      px(2, 4, 7, 1, C.belt);
+      px(8, 4, 1, 3, C.belt); // knot right
+    }
+  } else {
+    // No helmet - wild hair (berserker, rogue)
+    if(ch==='berserker') {
+      // Wild spiky hair
+      px(2, 1, 7, 4, C.hair);
+      px(1, 2, 1, 2, C.hair); // left spike
+      px(9, 1, 1, 3, C.hair); // right spike
+      px(3, 0, 1, 2, C.hair); // top spikes
+      px(5, -1, 1, 2, C.hair);
+      px(7, 0, 1, 2, C.hair);
+    } else if(ch==='rogue') {
+      // Dark hood
+      px(2, 1, 7, 6, C.helm||'#222233');
+      px(2, 1, 2, 6, '#000000', 0.2); // shadow left
+      // Shadow over face
+      px(3, 3, 5, 3, '#000000', 0.25);
+    }
+  }
+
+  // ---- FACE ----
+  // Face skin
+  px(3, 3, 5, 5, C.skin);
+  // Face shading
+  px(7, 4, 1, 4, C.skinD, 0.4);
+  px(3, 7, 5, 1, C.skinD, 0.3);
+
+  // Eyes
+  const eyeY = (ch==='rogue') ? 4 : 4;
+  const eyeColor = (ch==='mage') ? '#CC88FF' : (ch==='shaman') ? '#00FF88' : (ch==='priestess') ? '#88AAFF' : '#2A1A0A';
+  // blink animation
+  const blink = (frame%180 < 3);
+  if(!blink) {
+    px(4, eyeY, 1, 1, eyeColor);
+    px(6, eyeY, 1, 1, eyeColor);
+    // Eye whites
+    px(4, eyeY, 1, 1, '#FFFFFF', 0.3);
+  } else {
+    px(4, eyeY, 1, 1, C.skinD);
+    px(6, eyeY, 1, 1, C.skinD);
+  }
+  // Eye glow for magic classes
+  if(ch==='mage'||ch==='shaman') {
+    px(4, eyeY, 1, 1, C.accent, 0.4);
+    px(6, eyeY, 1, 1, C.accent, 0.4);
+  }
+
+  // Nose
+  px(5, 5, 1, 1, C.skinD, 0.5);
+
+  // Mouth
+  if(state==='hurt') {
+    px(4, 6, 3, 1, '#CC4444', 0.8); // hurt grimace
+  } else {
+    px(4, 6, 3, 1, C.skinD, 0.4);
+  }
+
+  // Hair (visible under/over helm edges)
+  if(C.helm) {
+    // Sideburn / ear area
+    px(3, 6, 1, 1, C.hair, 0.5);
+    px(7, 6, 1, 1, C.hair, 0.5);
+  }
+
+  // ---- CLASS-SPECIFIC EFFECTS ----
+  if(state==='skill') {
+    if(ch==='mage'||ch==='shaman') {
+      // Magic circle
+      ctx.save();
+      ctx.strokeStyle = C.accent;
+      ctx.lineWidth = s;
+      ctx.globalAlpha = 0.7;
+      ctx.beginPath();
+      ctx.arc(5.5*s, 14*s, 8*s, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    }
+    if(ch==='knight'||ch==='berserker') {
+      // Weapon glow
+      px(10, 8, 1, 12, C.accent, 0.3);
+    }
+  }
+
+  ctx.restore();
+}
+
+// ================================================================
+// RENDER MINI PREVIEW (menu cards)
+// ================================================================
+function renderPreviews() {
+  const chars = Object.keys(CHAR_DEFS);
+  chars.forEach(ch => {
+    const c = document.getElementById('prev-'+ch);
+    if(!c) return;
+    const s = 2;
+    c.width = 44; c.height = 54;
+    const cx = c.getContext('2d');
+    cx.imageSmoothingEnabled = false;
+    // Background
+    const C = CHAR_DEFS[ch];
+    const frame = Math.floor(Date.now()/120);
+    cx.clearRect(0,0,44,54);
+    drawChar(cx, ch, 0, 2, 'right', frame, s, 'idle');
+  });
+  requestAnimationFrame(renderPreviews);
+}
+
+// ================================================================
+// OBSTACLE TYPES - the "chướng ngại vật" that trigger questions
+// ================================================================
+const OBSTACLE_TYPES = [
+  { icon:'🧱', name:'Tường Phép Thuật', color:'#8844BB', msg:'Tường ma thuật chặn đường! Trả lời đúng để phá vỡ nó!' },
+  { icon:'👹', name:'Quỷ Canh Gác', color:'#BB4422', msg:'Quỷ chặn đường! Đánh bại nó bằng tri thức!' },
+  { icon:'🔒', name:'Khóa Bí Ẩn', color:'#886622', msg:'Cánh cửa khóa! Tìm chìa khóa tri thức để mở!' },
+  { icon:'🌀', name:'Xoáy Hư Không', color:'#4488CC', msg:'Xoáy chiều không gian! Trả lời đúng để vượt qua!' },
+  { icon:'🧙', name:'Thuật Sĩ Thù', color:'#446688', msg:'Thuật sĩ thù địch! Đánh bại hắn bằng trí tuệ!' },
+  { icon:'🗿', name:'Tượng Đá', color:'#667766', msg:'Tượng đá cổ đại chặn lối! Giải mã bí ẩn để tiếp tục!' },
+  { icon:'💎', name:'Cổng Pha Lê', color:'#44AACC', msg:'Cổng pha lê bí ẩn! Chứng minh trí tuệ để bước qua!' },
+  { icon:'🌋', name:'Nham Thạch', color:'#CC5522', msg:'Nham thạch chặn đường! Đánh bại bằng kiến thức!' },
 ];
 
-/* ══ STATE ══ */
-let selectedChar=0, selectedDiff='easy', game=null;
-let _nextScore=0, _nextLevel=1;
+// ================================================================
+// STATE
+// ================================================================
+const G={char:'knight',subj:'math',diff:'easy',hp:5,maxHp:5,combo:0,score:0,floor:1,paused:false,usedQ:new Set()};
+const DCFG={easy:{mw:11,mh:11,hp:5,time:0,traps:0,qn:5},med:{mw:17,mh:17,hp:4,time:30,traps:0,qn:6},hard:{mw:23,mh:23,hp:3,time:20,traps:0,qn:8}};
+const SUBJ_NAMES={math:'📐 TOÁN HỌC',lit:'📚 VĂN HỌC',sci:'🔬 KHOA HỌC',hist:'🏛️ LỊCH SỬ',eng:'🌐 TIẾNG ANH',gen:'🎯 TỔNG HỢP'};
 
-/* ══ SCREEN SYSTEM ══ */
-function showScreen(id){
-  const cur=document.querySelector('.screen.active');
-  const nxt=document.getElementById(id);
-  if(cur===nxt)return;
-  if(cur){cur.classList.remove('visible');setTimeout(()=>cur.classList.remove('active'),280);}
-  setTimeout(()=>{
-    nxt.classList.add('active','visible');
-  },cur?220:0);
-  // D-pad chỉ hiện khi ở màn game
-  document.getElementById('dpad').classList.toggle('visible',id==='gameScreen');
+// ================================================================
+// QUESTION BANK
+// ================================================================
+const QB={
+  math:[
+    {q:'12 × 8 = ?',o:['96','86','106','94'],a:0,e:'12×8 = (10+2)×8 = 80+16 = 96'},
+    {q:'√144 = ?',o:['11','12','13','14'],a:1,e:'12² = 144 nên √144 = 12'},
+    {q:'15% × 200 = ?',o:['25','30','35','20'],a:1,e:'0.15 × 200 = 30'},
+    {q:'Tổng góc trong tam giác = ?',o:['90°','180°','270°','360°'],a:1,e:'Tổng 3 góc tam giác luôn = 180°'},
+    {q:'2⁸ = ?',o:['128','256','512','64'],a:1,e:'2⁸ = 256'},
+    {q:'Diện tích hình tròn r=5?',o:['25π','10π','50π','5π'],a:0,e:'S = πr² = 25π'},
+    {q:'(x+3)(x-3) = ?',o:['x²-9','x²+9','x²-6x','x²+6x'],a:0,e:'(a+b)(a-b) = a²-b²'},
+    {q:'3/4 + 1/6 = ?',o:['11/12','5/6','4/10','7/12'],a:0,e:'9/12 + 2/12 = 11/12'},
+    {q:'Chu vi hình vuông cạnh 7?',o:['28','49','14','21'],a:0,e:'4 × 7 = 28'},
+    {q:'log₂(32) = ?',o:['4','5','6','3'],a:1,e:'2⁵ = 32'},
+    {q:'Số Pi ≈ ?',o:['3.14159','3.14152','3.14169','3.14199'],a:0,e:'π ≈ 3.14159265...'},
+    {q:'(-3)² = ?',o:['-9','-6','9','6'],a:2,e:'(-3)² = (-3)×(-3) = 9 (âm × âm = dương)'},
+  ],
+  sci:[
+    {q:'H₂O có mấy nguyên tử H?',o:['1','2','3','4'],a:1,e:'H₂O = 2 Hydro + 1 Oxy'},
+    {q:'Tốc độ ánh sáng ≈ ?',o:['3×10⁸ m/s','3×10⁶ m/s','3×10⁵ m/s','3×10⁷ m/s'],a:0,e:'c ≈ 3×10⁸ m/s'},
+    {q:'g Trái Đất ≈ ?',o:['9.8m/s²','8.9m/s²','10.8m/s²','7.9m/s²'],a:0,e:'g ≈ 9.8 m/s²'},
+    {q:'Bảng tuần hoàn có ? nguyên tố',o:['108','118','128','98'],a:1,e:'118 nguyên tố đã xác nhận'},
+    {q:'Nước sôi ở ?',o:['90°C','95°C','100°C','105°C'],a:2,e:'100°C tại áp suất chuẩn'},
+    {q:'Hành tinh lớn nhất Hệ MT?',o:['Saturn','Jupiter','Uranus','Neptune'],a:1,e:'Sao Mộc (Jupiter)'},
+    {q:'DNA là viết tắt của?',o:['Deoxyribonucleic Acid','Dibonucleic Acid','Dioxyribose Acid','Dinucleic Acid'],a:0,e:'Deoxyribonucleic Acid'},
+    {q:'Quang hợp cần?',o:['CO₂+H₂O+ánh sáng','O₂+CO₂','H₂O+O₂','N₂+O₂'],a:0,e:'CO₂ + H₂O + ánh sáng → Glucose + O₂'},
+    {q:'Nguyên tố nhẹ nhất?',o:['Helium','Hydrogen','Lithium','Carbon'],a:1,e:'Hydro (H) là nguyên tố nhẹ nhất - nguyên tử số 1'},
+    {q:'Ánh sáng trắng gồm mấy màu?',o:['5','6','7','8'],a:2,e:'7 màu cầu vồng: đỏ,cam,vàng,lục,lam,chàm,tím'},
+  ],
+  hist:[
+    {q:'Chiến thắng ĐBP năm nào?',o:['1952','1953','1954','1955'],a:2,e:'7/5/1954 chiến dịch kết thúc'},
+    {q:'Bác Hồ đọc Tuyên ngôn ngày?',o:['2/9/1945','19/8/1945','30/4/1975','2/9/1940'],a:0,e:'2/9/1945 tại Quảng trường Ba Đình'},
+    {q:'Cách mạng Pháp năm nào?',o:['1776','1789','1800','1815'],a:1,e:'1789 - Phá ngục Bastille 14/7'},
+    {q:'Thế chiến II kết thúc năm?',o:['1943','1944','1945','1946'],a:2,e:'1945 - Nhật đầu hàng 2/9/1945'},
+    {q:'Kim tự tháp Giza do ai xây?',o:['Ramesses II','Pharaoh Khufu','Cleopatra','Tutankhamun'],a:1,e:'Pharaoh Khufu (~2560 TCN)'},
+    {q:'Thành phố HCM đổi tên năm?',o:['1973','1974','1975','1976'],a:2,e:'1/5/1975 đổi thành TP. Hồ Chí Minh'},
+    {q:'Nước Mỹ độc lập năm nào?',o:['1774','1775','1776','1777'],a:2,e:'4/7/1776 - Ngày Độc lập Hoa Kỳ'},
+    {q:'Vạn Lý Trường Thành ở đâu?',o:['Nhật Bản','Hàn Quốc','Trung Quốc','Mông Cổ'],a:2,e:'Vạn Lý Trường Thành - biểu tượng của Trung Quốc'},
+  ],
+  lit:[
+    {q:'Truyện Kiều của ai?',o:['Nguyễn Du','Hồ Xuân Hương','Nguyễn Trãi','Tú Xương'],a:0,e:'Nguyễn Du - tác phẩm bất hủ'},
+    {q:'Thể thơ Truyện Kiều?',o:['Thất ngôn','Lục bát','Ngũ ngôn','Tứ tuyệt'],a:1,e:'Lục bát truyền thống Việt Nam'},
+    {q:'Chí Phèo của ai?',o:['Tô Hoài','Nam Cao','Ngô Tất Tố','Nguyên Hồng'],a:1,e:'Nam Cao - 1941'},
+    {q:'Bình Ngô đại cáo viết bằng?',o:['Quốc ngữ','Chữ Nôm','Chữ Hán','Tiếng Pháp'],a:2,e:'Nguyễn Trãi - chữ Hán - 1428'},
+    {q:'Tắt Đèn của ai?',o:['Nam Cao','Ngô Tất Tố','Nguyên Hồng','Tô Hoài'],a:1,e:'Ngô Tất Tố - 1939'},
+    {q:'Dế Mèn phiêu lưu ký - tác giả?',o:['Tô Hoài','Nam Cao','Nguyên Hồng','Xuân Diệu'],a:0,e:'Tô Hoài - xuất bản 1941'},
+    {q:'"Từ ấy" là thơ của ai?',o:['Tố Hữu','Xuân Diệu','Huy Cận','Chế Lan Viên'],a:0,e:'Tố Hữu - 1938, tập thơ đầu tay'},
+  ],
+  eng:[
+    {q:'Past tense of "go"?',o:['goed','went','gone','goes'],a:1,e:'go → went (bất quy tắc)'},
+    {q:'"Beautiful" nghĩa là?',o:['Xấu','Đẹp','To lớn','Nhỏ bé'],a:1,e:'Beautiful = Đẹp, xinh đẹp'},
+    {q:'She ___ know. (Correct)',o:["don't","doesn't","not","no"],a:1,e:"Ngôi 3 số ít → doesn't"},
+    {q:'Plural of "child"?',o:['childs','childes','children','childer'],a:2,e:'child → children (bất quy tắc)'},
+    {q:'Comparative of "good"?',o:['gooder','more good','better','best'],a:2,e:'good → better → best'},
+    {q:'"Vocabulary" nghĩa là?',o:['Ngữ pháp','Phát âm','Từ vựng','Câu văn'],a:2,e:'Vocabulary = Từ vựng'},
+    {q:'Opposite of "ancient"?',o:['old','modern','historical','past'],a:1,e:'ancient (cổ đại) ↔ modern (hiện đại)'},
+    {q:'"She has been studying" - tense?',o:['Simple Past','Present Perfect','Past Perfect','Pres. Perfect Cont.'],a:3,e:'Has been + V-ing = Present Perfect Continuous'},
+  ],
+  gen:[
+    {q:'Việt Nam có bao nhiêu tỉnh?',o:['60','63','65','68'],a:1,e:'63 tỉnh thành phố trực thuộc TW'},
+    {q:'Thủ đô Nhật Bản?',o:['Osaka','Kyoto','Tokyo','Hiroshima'],a:2,e:'Tokyo là thủ đô Nhật Bản'},
+    {q:'1 byte = ? bit',o:['4','6','8','16'],a:2,e:'1 byte = 8 bit'},
+    {q:'Núi cao nhất thế giới?',o:['K2','Kangchenjunga','Everest','Lhotse'],a:2,e:'Everest 8,849m'},
+    {q:'Sông dài nhất thế giới?',o:['Amazon','Congo','Nile','Mississippi'],a:2,e:'Sông Nile ~6,650km'},
+    {q:'Hành tinh gần Mặt Trời nhất?',o:['Venus','Earth','Mercury','Mars'],a:2,e:'Sao Thủy (Mercury)'},
+    {q:'Quốc gia đông dân nhất 2023?',o:['China','India','USA','Indonesia'],a:1,e:'Ấn Độ vượt Trung Quốc năm 2023'},
+    {q:'Đâu là ngôn ngữ lập trình?',o:['HTML','Python','CSS','Word'],a:1,e:'Python là ngôn ngữ lập trình phổ biến'},
+    {q:'Trái Đất có mấy đại dương?',o:['3','4','5','6'],a:2,e:'5 đại dương: Thái Bình, Đại Tây, Ấn Độ, Bắc Băng, Nam'},
+  ]
+};
+
+function getRandQ() {
+  const bank = QB[G.subj]||QB.gen;
+  let avail = bank.filter((_,i)=>!G.usedQ.has(i));
+  if(!avail.length){G.usedQ.clear();avail=bank;}
+  const q = avail[Math.floor(Math.random()*avail.length)];
+  G.usedQ.add(bank.indexOf(q));
+  return q;
 }
 
-/* ══ MENU INTERACTIONS ══ */
-// pointerdown = instant response on both PC click and mobile touch
-document.getElementById('charGrid').addEventListener('pointerdown',e=>{
-  const c=e.target.closest('.char-card');if(!c)return;
-  selectedChar=parseInt(c.dataset.char);
-  document.querySelectorAll('.char-card').forEach(x=>x.classList.remove('selected'));
-  c.classList.add('selected');
-});
-document.getElementById('diffGrid').addEventListener('pointerdown',e=>{
-  const c=e.target.closest('.diff-card');if(!c)return;
-  selectedDiff=c.dataset.diff;
-  document.querySelectorAll('.diff-card').forEach(x=>x.classList.remove('selected'));
-  c.classList.add('selected');
-});
-document.getElementById('startBtn').addEventListener('pointerdown',()=>startGame());
+// ================================================================
+// MENU SELECTORS
+// ================================================================
+function selChar(el){document.querySelectorAll('.char-card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');G.char=el.dataset.c;}
+function selSubj(el){document.querySelectorAll('.sbtn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');G.subj=el.dataset.s;}
+function selDiff(el){document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');G.diff=el.dataset.d;}
 
-/* ══ MAZE GENERATOR ══ */
-function generateMaze(W,H){
-  const cells=Array.from({length:H},(_,y)=>Array.from({length:W},(_,x)=>
-    ({x,y,walls:[true,true,true,true],visited:false,obstacle:false,explored:false})));
-  const at=(x,y)=>cells[y]?.[x];
-  const nb=(x,y)=>[[x,y-1],[x+1,y],[x,y+1],[x-1,y]].map(([a,b])=>at(a,b)).filter(c=>c&&!c.visited);
-  const rmW=(a,b)=>{
-    const dx=b.x-a.x,dy=b.y-a.y;
-    if(dy===-1){a.walls[0]=false;b.walls[2]=false;}
-    else if(dx===1){a.walls[1]=false;b.walls[3]=false;}
-    else if(dy===1){a.walls[2]=false;b.walls[0]=false;}
-    else{a.walls[3]=false;b.walls[1]=false;}
-  };
-  let cur=cells[0][0];cur.visited=true;const stk=[cur];
-  while(stk.length){
-    const n=nb(cur.x,cur.y);
-    if(n.length){const nx=n[0|Math.random()*n.length];stk.push(cur);rmW(cur,nx);nx.visited=true;cur=nx;}
-    else cur=stk.pop();
-  }
-  return cells;
-}
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=0|Math.random()*(i+1);[a[i],a[j]]=[a[j],a[i]];}}
+// ================================================================
+// MAZE GENERATOR
+// ================================================================
+let MZ = null;
+// grid: 0=floor,1=wall,2=exit,3=obstacle(question trigger)
 
-/* ══ GAME CLASS ══ */
-class MazeGame{
-  constructor(charIdx,diff,score=0,level=1){
-    this.cfg=DIFFS[diff];this.char=CHARS[charIdx];
-    this.W=this.cfg.size;this.H=this.cfg.size;
-    this.cells=generateMaze(this.W,this.H);
-    this.level=level;this.score=score;this.correctCount=0;
-    this.hp=this.char.hp;this.maxHp=this.char.hp;
-    this.px=0;this.py=0;
-    this.goalX=this.W-1;this.goalY=this.H-1;
-    this.paused=false;this.inQuestion=false;this.gameOver=false;
-    this.startTime=Date.now();this.usedQ=new Set();
+function genMaze(W, H) {
+  const grid = [];
+  for(let y=0;y<H;y++) grid.push(new Array(W).fill(1));
 
-    // tileSize = Math.floor(availableSpace / mazeColumns) — công thức chuẩn
-    this.CELL = calcCellSize(this.W);
-
-    const cv=document.getElementById('gameCanvas');
-    // Resize canvas ngay lập tức theo kích thước thực tế
-    cv.width  = this.W * this.CELL;
-    cv.height = this.H * this.CELL;
-    this.ctx=cv.getContext('2d');
-    this.mmCtx=document.getElementById('minimap').getContext('2d');
-
-    // Place obstacles (not on start or goal)
-    const pl=[];
-    for(let y=0;y<this.H;y++)for(let x=0;x<this.W;x++){
-      if(x===0&&y===0)continue;if(x===this.goalX&&y===this.goalY)continue;pl.push({x,y});
-    }
-    shuffle(pl);
-    for(let i=0;i<this.cfg.cells&&i<pl.length;i++)this.cells[pl[i].y][pl[i].x].obstacle=true;
-
-    this.cells[0][0].explored=true;
-    // reveal start neighbours
-    [[0,0],[-1,0],[1,0],[0,-1],[0,1]].forEach(([dx,dy])=>{
-      if(this.cells[dy]?.[dx])this.cells[dy][dx].explored=true;
-    });
-    this.updateUI();
-    // draw() và drawMinimap() sẽ được gọi bởi game loop
-
-    this._kh=e=>this.handleKey(e);
-    document.addEventListener('keydown',this._kh);
-  }
-  destroy(){
-    document.removeEventListener('keydown',this._kh);
-    clearInterval(this._holdT);clearTimeout(this._holdTO);
-    clearInterval(this.timerInterval);
-  }
-  handleKey(e){
-    if(this.paused||this.inQuestion||this.gameOver)return;
-    const m={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',
-             w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
-    const dir=m[e.key];
-    if(dir){e.preventDefault();this.move(dir);}
-    if(e.key==='Escape')togglePause();
-  }
-  move(dir){
-    if(this.paused||this.inQuestion||this.gameOver)return;
-    const c=this.cells[this.py][this.px];
-    const wi={up:0,right:1,down:2,left:3};
-    const dv={up:[0,-1],right:[1,0],down:[0,1],left:[-1,0]};
-    const [dx,dy]=dv[dir];
-    if(c.walls[wi[dir]])return;
-    const nx=this.px+dx,ny=this.py+dy;
-    if(nx<0||nx>=this.W||ny<0||ny>=this.H)return;
-    const t=this.cells[ny][nx];
-    if(t.obstacle){this.triggerQuestion(nx,ny);return;}
-    this.px=nx;this.py=ny;
-    [[nx,ny],[nx-1,ny],[nx+1,ny],[nx,ny-1],[nx,ny+1]].forEach(([ex,ey])=>{
-      if(this.cells[ey]?.[ex])this.cells[ey][ex].explored=true;
-    });
-    this.draw();this.drawMinimap();
-    if(this.px===this.goalX&&this.py===this.goalY)this.completeLevel();
-  }
-  triggerQuestion(tx,ty){
-    this.inQuestion=true;this.pendingObstacle={x:tx,y:ty};
-    const qs=QUESTIONS.filter((_,i)=>!this.usedQ.has(i));
-    const pool=qs.length?qs:QUESTIONS;
-    const q=pool[0|Math.random()*pool.length];
-    this.usedQ.add(QUESTIONS.indexOf(q));this.currentQ=q;
-    document.getElementById('qText').textContent=q.q;
-    const opts=document.getElementById('qOptions');opts.innerHTML='';
-    q.opts.forEach((o,i)=>{
-      const b=document.createElement('button');b.className='q-opt';b.textContent=o;
-      b.addEventListener('pointerdown',()=>this.answerQ(i));
-      opts.appendChild(b);
-    });
-    document.getElementById('qFeedback').textContent='';
-    document.getElementById('qTimer').style.color='var(--red)';
-    let t=this.cfg.time;document.getElementById('qTimer').textContent=t;
-    this.timerInterval=setInterval(()=>{
-      t--;document.getElementById('qTimer').textContent=t;
-      if(t<=5)document.getElementById('qTimer').style.color='#ff8800';
-      if(t<=0){clearInterval(this.timerInterval);this.answerQ(-1);}
-    },1000);
-    document.getElementById('questionOverlay').classList.add('active');
-  }
-  answerQ(chosen){
-    clearInterval(this.timerInterval);
-    const ok=this.currentQ.ans;
-    document.querySelectorAll('.q-opt').forEach(b=>b.disabled=true);
-    if(chosen===ok){
-      document.querySelectorAll('.q-opt')[ok].classList.add('correct');
-      document.getElementById('qFeedback').textContent='✅ Chính xác! Đường mở rồi!';
-      document.getElementById('qFeedback').style.color='#86efac';
-      this.score+=100;this.correctCount++;showNotif('+100 điểm! ✨');
-      setTimeout(()=>{
-        document.getElementById('questionOverlay').classList.remove('active');
-        const ob=this.pendingObstacle;
-        this.cells[ob.y][ob.x].obstacle=false;
-        this.px=ob.x;this.py=ob.y;
-        [[ob.x,ob.y],[ob.x-1,ob.y],[ob.x+1,ob.y],[ob.x,ob.y-1],[ob.x,ob.y+1]].forEach(([ex,ey])=>{
-          if(this.cells[ey]?.[ex])this.cells[ey][ex].explored=true;
-        });
-        this.inQuestion=false;this.updateUI();this.draw();this.drawMinimap();
-        if(this.px===this.goalX&&this.py===this.goalY)this.completeLevel();
-      },1200);
-    }else{
-      const bs=document.querySelectorAll('.q-opt');
-      if(chosen>=0)bs[chosen].classList.add('wrong');bs[ok].classList.add('correct');
-      document.getElementById('qFeedback').textContent=chosen<0?'⏱ Hết giờ!':'❌ Sai rồi!';
-      document.getElementById('qFeedback').style.color='#fca5a5';
-      this.hp=Math.max(0,this.hp-this.cfg.hpLoss);showNotif(`-${this.cfg.hpLoss} HP 💔`);
-      setTimeout(()=>{
-        document.getElementById('questionOverlay').classList.remove('active');
-        this.inQuestion=false;this.updateUI();this.draw();
-        if(this.hp<=0)this.endGame(false);
-      },1400);
-    }
-  }
-  completeLevel(){
-    const e=Math.round((Date.now()-this.startTime)/1000);
-    this.score+=Math.max(0,500-e*5);this.endGame(true);
-  }
-  endGame(win){
-    this.gameOver=true;this.destroy();
-    setTimeout(()=>showResult(win,this.score,this.correctCount,
-      Math.round((Date.now()-this.startTime)/1000),this.level),300);
-  }
-  updateUI(){
-    document.getElementById('hpVal').textContent=this.hp;
-    document.getElementById('hpBar').style.width=(this.hp/this.maxHp*100)+'%';
-    document.getElementById('scoreVal').textContent=this.score;
-    document.getElementById('levelVal').textContent=this.level;
-    document.getElementById('charDisplay').textContent=this.char.emoji;
-    document.getElementById('charName').textContent=this.char.name;
-  }
-  draw(){
-    const {ctx,W,H,CELL,px,py}=this;
-    ctx.clearRect(0,0,W*CELL,H*CELL);
-    ctx.fillStyle='#0d0618';ctx.fillRect(0,0,W*CELL,H*CELL);
-    // grid
-    ctx.strokeStyle='rgba(50,20,100,.2)';ctx.lineWidth=.5;
-    for(let y=0;y<H;y++)for(let x=0;x<W;x++)ctx.strokeRect(x*CELL,y*CELL,CELL,CELL);
-    // fog
-    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-      if(!this.cells[y][x].explored){ctx.fillStyle='rgba(4,1,12,.92)';ctx.fillRect(x*CELL,y*CELL,CELL,CELL);}
-    }
-    ctx.font=`${CELL*.65}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    // goal
-    if(this.cells[this.goalY][this.goalX].explored){
-      ctx.fillStyle='rgba(245,200,66,.1)';ctx.fillRect(this.goalX*CELL,this.goalY*CELL,CELL,CELL);
-      ctx.fillText('🚪',(this.goalX+.5)*CELL,(this.goalY+.5)*CELL);
-    }
-    // obstacles
-    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-      if(this.cells[y][x].obstacle&&this.cells[y][x].explored){
-        ctx.fillStyle='rgba(200,50,50,.1)';ctx.fillRect(x*CELL,y*CELL,CELL,CELL);
-        ctx.fillText('💀',(x+.5)*CELL,(y+.5)*CELL);
+  function carve(x,y) {
+    const dirs=[[0,-2],[0,2],[-2,0],[2,0]].sort(()=>Math.random()-.5);
+    for(let i=0;i<4;i++) {
+      const dx=dirs[i][0],dy=dirs[i][1];
+      const nx=x+dx,ny=y+dy;
+      if(nx>0&&nx<W-1&&ny>0&&ny<H-1&&grid[ny][nx]===1) {
+        grid[y+dy/2][x+dx/2]=0;
+        grid[ny][nx]=0;
+        carve(nx,ny);
       }
     }
-    // walls
-    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-      const c=this.cells[y][x];if(!c.explored)continue;
-      const lx=x*CELL,ly=y*CELL;
-      ctx.strokeStyle='#5a30a0';ctx.lineWidth=Math.max(1.5,CELL*.08);
-      if(c.walls[0]){ctx.beginPath();ctx.moveTo(lx+1,ly);ctx.lineTo(lx+CELL-1,ly);ctx.stroke();}
-      if(c.walls[1]){ctx.beginPath();ctx.moveTo(lx+CELL,ly+1);ctx.lineTo(lx+CELL,ly+CELL-1);ctx.stroke();}
-      if(c.walls[2]){ctx.beginPath();ctx.moveTo(lx+1,ly+CELL);ctx.lineTo(lx+CELL-1,ly+CELL);ctx.stroke();}
-      if(c.walls[3]){ctx.beginPath();ctx.moveTo(lx,ly+1);ctx.lineTo(lx,ly+CELL-1);ctx.stroke();}
-    }
-    // glow
-    const pcx=(px+.5)*CELL,pcy=(py+.5)*CELL;
-    const g=ctx.createRadialGradient(pcx,pcy,0,pcx,pcy,CELL*2.5);
-    g.addColorStop(0,'rgba(168,85,247,.2)');g.addColorStop(1,'transparent');
-    ctx.fillStyle=g;ctx.fillRect(0,0,W*CELL,H*CELL);
-    // player
-    ctx.fillText(this.char.emoji,pcx,pcy);
   }
-  drawMinimap(){
-    const {mmCtx,W,H}=this;
-    const S=0|150/Math.max(W,H);
-    mmCtx.clearRect(0,0,150,150);
-    mmCtx.fillStyle='#0d0618';mmCtx.fillRect(0,0,150,150);
-    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-      const c=this.cells[y][x];
-      if(!c.explored){mmCtx.fillStyle='#040108';mmCtx.fillRect(x*S,y*S,S,S);continue;}
-      if(c.obstacle) {mmCtx.fillStyle='#7b0000';mmCtx.fillRect(x*S,y*S,S,S);continue;}
-      mmCtx.fillStyle='#1e0a40';mmCtx.fillRect(x*S,y*S,S,S);
+  grid[1][1]=0;
+  carve(1,1);
+
+  // Exit
+  let ex=W-2,ey=H-2;
+  let att=0;
+  while(grid[ey][ex]!==0&&att<100){ex=1+(Math.floor(Math.random()*((W-1)/2))*2);ey=1+(Math.floor(Math.random()*((H-1)/2))*2);att++;}
+  if(ex===1&&ey===1){ex=W-2;ey=H-2;}
+  grid[ey][ex]=2;
+
+  // Obstacles (= question triggers) - placed on floor tiles
+  const cfg=DCFG[G.diff];
+  const obstacles=[];
+  att=0;
+  while(obstacles.length<cfg.qn&&att<500){
+    att++;
+    const tx=1+(Math.floor(Math.random()*((W-1)/2))*2);
+    const ty=1+(Math.floor(Math.random()*((H-1)/2))*2);
+    if(grid[ty][tx]===0&&!(tx===1&&ty===1)&&!(tx===ex&&ty===ey)&&!obstacles.find(o=>o.x===tx&&o.y===ty)) {
+      const obsType = OBSTACLE_TYPES[Math.floor(Math.random()*OBSTACLE_TYPES.length)];
+      grid[ty][tx]=3;
+      obstacles.push({x:tx,y:ty,done:false,type:obsType});
     }
-    mmCtx.fillStyle='#f5c842';mmCtx.fillRect(this.goalX*S,this.goalY*S,S,S);
-    mmCtx.fillStyle='#a855f7';mmCtx.fillRect(this.px*S,this.py*S,S,S);
   }
+
+  return {grid,w:W,h:H,exit:{x:ex,y:ey},obstacles};
 }
 
-/* ══ UNIFIED MOVE ══ */
-function movePlayer(dir){if(game&&!game.gameOver)game.move(dir);}
+// ================================================================
+// CANVAS SETUP
+// ================================================================
+const canvas=document.getElementById('gc');
+const ctx=canvas.getContext('2d');
+const TILE=40; // bigger tiles for better detail
+let AF=0;
+const PL={x:1,y:1,aura:0,dir:'right',state:'idle',hurtTimer:0};
 
-/* ══ D-PAD: pointerdown (PC + mobile, instant, hold-to-repeat) ══ */
-let _holdT=null,_holdTO=null;
-function dpadStart(dir){
-  movePlayer(dir);
-  clearInterval(_holdT);clearTimeout(_holdTO);
-  _holdTO=setTimeout(()=>{_holdT=setInterval(()=>movePlayer(dir),160);},360);
+const THEMES=[
+  // Forest
+  {wall:'#1e3824',wall2:'#152b1a',wallH:'#2a5030',floor:'#16231a',floor2:'#101a12',acc:'#44FF88',bg:'#080e09',torch:'#FF8833',rune:'#44EE66',name:'RỪNG CỔ'},
+  // Castle
+  {wall:'#2a2a44',wall2:'#1a1a33',wallH:'#3a3a5a',floor:'#151528',floor2:'#0e0e1e',acc:'#4488FF',bg:'#080820',torch:'#4488FF',rune:'#6699FF',name:'LÂU ĐÀI'},
+  // Temple
+  {wall:'#3a2a14',wall2:'#2a1c0a',wallH:'#4a3a20',floor:'#1a1208',floor2:'#110c04',acc:'#FFD700',bg:'#0e0804',torch:'#FF6600',rune:'#FFAA33',name:'ĐỀN CỔ'},
+  // Thunder
+  {wall:'#1a1a3a',wall2:'#10102a',wallH:'#2a2a5a',floor:'#0a0a20',floor2:'#060614',acc:'#AA44FF',bg:'#06060e',torch:'#AA44FF',rune:'#CC88FF',name:'VÙNG SẤM'},
+];
+function theme(){return THEMES[(G.floor-1)%4];}
+
+function setupCanvas(){
+  if(!MZ)return;
+  const wrap=document.getElementById('canvas-wrap');
+  const ww=wrap.offsetWidth||500;
+  const wh=wrap.offsetHeight||400;
+  const mw=MZ.w*TILE, mh=MZ.h*TILE;
+  let scale=Math.min(ww/mw,wh/mh);
+  if(scale>3)scale=3;
+  canvas.width=mw; canvas.height=mh;
+  canvas.style.width=Math.floor(mw*scale)+'px';
+  canvas.style.height=Math.floor(mh*scale)+'px';
 }
-function dpadStop(){clearInterval(_holdT);clearTimeout(_holdTO);_holdT=_holdTO=null;}
 
-document.querySelectorAll('.dpad-btn').forEach(btn=>{
-  const dir=btn.dataset.dir;
-  btn.addEventListener('pointerdown',e=>{
-    e.preventDefault();
-    btn.classList.add('pressed');
-    btn.setPointerCapture(e.pointerId);
-    dpadStart(dir);
+// ================================================================
+// RENDER - Enhanced maze with detailed graphics
+// ================================================================
+function render(){
+  if(!MZ)return;
+  const {grid,w,h}=MZ;
+  const T=theme();
+
+  ctx.fillStyle=T.bg;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const v=grid[y][x];
+      const px=x*TILE, py=y*TILE;
+
+      if(v===1){
+        // ---- WALL ----
+        // Base wall
+        ctx.fillStyle=T.wall;
+        ctx.fillRect(px,py,TILE,TILE);
+        // Top face (3D effect)
+        ctx.fillStyle=T.wallH;
+        ctx.fillRect(px,py,TILE,6);
+        // Left face
+        ctx.fillStyle=T.wall2;
+        ctx.fillRect(px,py,4,TILE);
+        // Bottom shadow
+        ctx.fillStyle='rgba(0,0,0,0.4)';
+        ctx.fillRect(px,py+TILE-5,TILE,5);
+        // Inner bevel
+        ctx.fillStyle='rgba(255,255,255,0.04)';
+        ctx.fillRect(px+4,py+6,TILE-8,TILE-11);
+        // Stone cracks detail
+        if((x*3+y*7)%9===0){
+          ctx.fillStyle='rgba(0,0,0,0.25)';
+          ctx.fillRect(px+6,py+8,TILE-12,1);
+          ctx.fillRect(px+10,py+14,5,1);
+        }
+        // Rune glow
+        if((x*5+y*3)%11===0){
+          const rl=0.06+Math.sin(AF*0.04+x+y*2)*0.05;
+          ctx.fillStyle=T.rune;
+          ctx.globalAlpha=rl;
+          ctx.fillRect(px+8,py+8,TILE-16,TILE-16);
+          ctx.globalAlpha=1;
+        }
+      } else {
+        // ---- FLOOR ----
+        const floorC=(x+y)%2===0?T.floor:T.floor2;
+        ctx.fillStyle=floorC;
+        ctx.fillRect(px,py,TILE,TILE);
+        // Floor tile border
+        ctx.fillStyle='rgba(0,0,0,0.15)';
+        ctx.fillRect(px,py,1,TILE);
+        ctx.fillRect(px,py,TILE,1);
+
+        if(v===2){
+          // ---- EXIT PORTAL ----
+          const pulse=0.5+Math.sin(AF*0.08)*0.35;
+          ctx.save();
+          // Outer glow
+          const eg=ctx.createRadialGradient(px+TILE/2,py+TILE/2,0,px+TILE/2,py+TILE/2,TILE*0.7);
+          eg.addColorStop(0,T.acc+'DD');
+          eg.addColorStop(0.5,T.acc+'66');
+          eg.addColorStop(1,'transparent');
+          ctx.fillStyle=eg;
+          ctx.globalAlpha=pulse;
+          ctx.fillRect(px-4,py-4,TILE+8,TILE+8);
+          ctx.restore();
+          // Portal ring
+          ctx.save();
+          ctx.strokeStyle=T.acc;
+          ctx.lineWidth=2;
+          ctx.globalAlpha=0.7+Math.sin(AF*0.1)*0.2;
+          ctx.beginPath();
+          ctx.arc(px+TILE/2,py+TILE/2,TILE*0.38,0,Math.PI*2);
+          ctx.stroke();
+          ctx.restore();
+          // Inner swirl
+          ctx.save();
+          ctx.translate(px+TILE/2,py+TILE/2);
+          ctx.rotate(AF*0.03);
+          ctx.globalAlpha=0.5;
+          ctx.fillStyle=T.acc;
+          ctx.beginPath();
+          ctx.arc(0,0,TILE*0.2,0,Math.PI*2);
+          ctx.fill();
+          ctx.restore();
+          // Icon
+          ctx.font=(TILE-10)+'px sans-serif';
+          ctx.textAlign='center';
+          ctx.textBaseline='middle';
+          ctx.fillText('🚪',px+TILE/2,py+TILE/2);
+        } else if(v===3){
+          // ---- OBSTACLE (question trigger) ----
+          const obs=MZ.obstacles.find(o=>o.x===x&&o.y===y&&!o.done);
+          if(obs){
+            const pulse=0.6+Math.sin(AF*0.12)*0.3;
+            // Glow base
+            ctx.save();
+            const og=ctx.createRadialGradient(px+TILE/2,py+TILE/2,0,px+TILE/2,py+TILE/2,TILE*0.6);
+            og.addColorStop(0,obs.type.color+'BB');
+            og.addColorStop(1,'transparent');
+            ctx.fillStyle=og;
+            ctx.globalAlpha=pulse*0.7;
+            ctx.fillRect(px,py,TILE,TILE);
+            ctx.restore();
+            // Obstacle body
+            ctx.save();
+            ctx.globalAlpha=pulse;
+            const sz=TILE*0.55;
+            const ox=px+TILE/2-sz/2, oy=py+TILE/2-sz/2;
+            ctx.fillStyle=obs.type.color+'99';
+            ctx.strokeStyle=obs.type.color;
+            ctx.lineWidth=2;
+            ctx.beginPath();
+            ctx.roundRect(ox,oy,sz,sz,4);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+            // Icon
+            ctx.font=Math.floor(TILE*0.5)+'px sans-serif';
+            ctx.textAlign='center';
+            ctx.textBaseline='middle';
+            ctx.fillText(obs.type.icon,px+TILE/2,py+TILE/2);
+            // Floating "?" above
+            const qBob=Math.sin(AF*0.12)*3;
+            ctx.save();
+            ctx.globalAlpha=pulse;
+            ctx.fillStyle='#FFD700';
+            ctx.font='bold 9px monospace';
+            ctx.textAlign='center';
+            ctx.fillText('?',px+TILE/2,py-4+qBob);
+            ctx.restore();
+          }
+        }
+      }
+    }
+  }
+
+  // Torches on walls near corridors
+  for(let y=1;y<MZ.h-1;y++){
+    for(let x=1;x<MZ.w-1;x++){
+      if(MZ.grid[y][x]===1&&(x*7+y*3)%17===0){
+        // Check if adjacent to floor
+        const adj=[(MZ.grid[y-1]&&MZ.grid[y-1][x]===0),(MZ.grid[y+1]&&MZ.grid[y+1][x]===0),(MZ.grid[y][x-1]===0),(MZ.grid[y][x+1]===0)];
+        if(adj.some(Boolean)){
+          drawTorch(x*TILE+TILE/2, y*TILE+TILE-4, T.torch);
+        }
+      }
+    }
+  }
+
+  // ---- PLAYER ----
+  // Shadow
+  ctx.save();
+  ctx.globalAlpha=0.25;
+  ctx.fillStyle='#000';
+  ctx.beginPath();
+  ctx.ellipse(PL.x*TILE+TILE/2,PL.y*TILE+TILE+2,TILE*0.3,5,0,0,Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+
+  // Aura effect
+  if(PL.aura>0.01){
+    ctx.save();
+    const ag=ctx.createRadialGradient(PL.x*TILE+TILE/2,PL.y*TILE+TILE/2,0,PL.x*TILE+TILE/2,PL.y*TILE+TILE/2,TILE*1.4);
+    const C=CHAR_DEFS[G.char];
+    ag.addColorStop(0,(C.accent||'#FFD700')+'88');
+    ag.addColorStop(1,'transparent');
+    ctx.fillStyle=ag;
+    ctx.fillRect(PL.x*TILE-TILE,PL.y*TILE-TILE,TILE*3,TILE*3);
+    ctx.restore();
+    PL.aura=Math.max(0,PL.aura-0.022);
+  }
+
+  // Draw the detailed pixel character
+  const charState = PL.hurtTimer>0 ? 'hurt' : PL.state;
+  const charScale = Math.floor(TILE/14); // scale to fit tile
+  drawChar(ctx, G.char, PL.x*TILE+2, PL.y*TILE-2, PL.dir, AF, charScale, charState);
+
+  // Ambient light around player
+  ctx.save();
+  const lg=ctx.createRadialGradient(PL.x*TILE+TILE/2,PL.y*TILE+TILE/2,0,PL.x*TILE+TILE/2,PL.y*TILE+TILE/2,TILE*4.5);
+  lg.addColorStop(0,'rgba(255,210,140,0.08)');
+  lg.addColorStop(1,'transparent');
+  ctx.fillStyle=lg;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.restore();
+}
+
+function drawTorch(cx, cy, color) {
+  // Torch stick
+  ctx.fillStyle='#7A5C2E';
+  ctx.fillRect(cx-1,cy-8,2,8);
+  // Flame (animated)
+  const fh=4+Math.sin(AF*0.3+cx)*1.5;
+  const fw=3+Math.sin(AF*0.25+cy)*1;
+  ctx.save();
+  // Outer flame
+  ctx.globalAlpha=0.6+Math.sin(AF*0.2+cx)*0.2;
+  const fg=ctx.createRadialGradient(cx,cy-8,0,cx,cy-8,fh);
+  fg.addColorStop(0,'#FFFFFF');
+  fg.addColorStop(0.3,color);
+  fg.addColorStop(1,'transparent');
+  ctx.fillStyle=fg;
+  ctx.beginPath();
+  ctx.ellipse(cx,cy-8,fw,fh,0,0,Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+  // Light cast
+  ctx.save();
+  const tl=ctx.createRadialGradient(cx,cy,0,cx,cy,TILE*1.5);
+  tl.addColorStop(0,color+'22');
+  tl.addColorStop(1,'transparent');
+  ctx.fillStyle=tl;
+  ctx.globalAlpha=0.4+Math.sin(AF*0.15+cx)*0.15;
+  ctx.fillRect(cx-TILE,cy-TILE,TILE*2,TILE*2);
+  ctx.restore();
+}
+
+// ================================================================
+// INPUT
+// ================================================================
+const KEYS={},DPAD={};
+let JOY_DIR=null;
+document.addEventListener('keydown',e=>{KEYS[e.key]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();});
+document.addEventListener('keyup',e=>{KEYS[e.key]=false;});
+
+document.querySelectorAll('.dp').forEach(btn=>{
+  const d=btn.dataset.d;
+  btn.addEventListener('touchstart',e=>{e.preventDefault();DPAD[d]=true;},{passive:false});
+  btn.addEventListener('touchend',e=>{e.preventDefault();DPAD[d]=false;},{passive:false});
+  btn.addEventListener('mousedown',()=>DPAD[d]=true);
+  btn.addEventListener('mouseup',()=>DPAD[d]=false);
+});
+const jOut=document.getElementById('joy-out');
+const jIn=document.getElementById('joy-in');
+let JS=null;
+jOut.addEventListener('touchstart',e=>{e.preventDefault();const r=jOut.getBoundingClientRect();JS={cx:r.left+r.width/2,cy:r.top+r.height/2};},{passive:false});
+jOut.addEventListener('touchmove',e=>{
+  e.preventDefault();if(!JS)return;
+  const t=e.touches[0];const dx=t.clientX-JS.cx,dy=t.clientY-JS.cy;
+  const dist=Math.sqrt(dx*dx+dy*dy),max=38,angle=Math.atan2(dy,dx);
+  jIn.style.transform='translate(calc(-50% + '+Math.cos(angle)*Math.min(dist,max)+'px),calc(-50% + '+Math.sin(angle)*Math.min(dist,max)+'px))';
+  JOY_DIR=dist>12?(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up')):null;
+},{passive:false});
+jOut.addEventListener('touchend',()=>{JS=null;JOY_DIR=null;jIn.style.transform='translate(-50%,-50%)';});
+
+function inputDir(){
+  if(KEYS['ArrowUp']||KEYS['w']||KEYS['W']||DPAD['up'])return'up';
+  if(KEYS['ArrowDown']||KEYS['s']||KEYS['S']||DPAD['down'])return'down';
+  if(KEYS['ArrowLeft']||KEYS['a']||KEYS['A']||DPAD['left'])return'left';
+  if(KEYS['ArrowRight']||KEYS['d']||KEYS['D']||DPAD['right'])return'right';
+  return JOY_DIR;
+}
+
+// ================================================================
+// MOVEMENT
+// ================================================================
+let moveCd=0;
+function movePlayer(dir){
+  if(!MZ||G.paused)return;
+  PL.dir=dir;
+  let nx=PL.x,ny=PL.y;
+  if(dir==='up')ny--;
+  else if(dir==='down')ny++;
+  else if(dir==='left')nx--;
+  else if(dir==='right')nx++;
+  if(nx<0||nx>=MZ.w||ny<0||ny>=MZ.h)return;
+  const v=MZ.grid[ny][nx];
+  if(v===1)return; // wall blocked
+  PL.x=nx;PL.y=ny;
+  PL.state='walk';
+  if(v===3){
+    // Obstacle! Trigger question
+    const obs=MZ.obstacles.find(o=>o.x===nx&&o.y===ny&&!o.done);
+    if(obs)showQ(obs);
+    return;
+  }else if(v===2){nextFloor();return;}
+}
+
+function loseHp(){
+  G.hp--;G.combo=0;PL.state='hurt';PL.hurtTimer=20;
+  if(navigator.vibrate)navigator.vibrate([100,40,100]);
+  updateHUD();
+  if(G.hp<=0)gameOver();
+}
+
+// ================================================================
+// HUD
+// ================================================================
+function updateHUD(){
+  const hh=document.getElementById('hp-hearts');
+  hh.innerHTML='';
+  for(let i=0;i<G.maxHp;i++){
+    const s=document.createElement('div');
+    s.className='hh'+(i>=G.hp?' gone':'');
+    hh.appendChild(s);
+  }
+  document.getElementById('combo-v').textContent=G.combo;
+  document.getElementById('floor-v').textContent=G.floor;
+  document.getElementById('score-v').textContent=G.score;
+}
+
+// ================================================================
+// QUESTION SYSTEM
+// ================================================================
+let CQ=null,COBS=null,QDone=false,QTimerID=null;
+
+function showQ(obs){
+  G.paused=true;QDone=false;
+  CQ=getRandQ();COBS=obs;
+  document.getElementById('qbadge').textContent=SUBJ_NAMES[G.subj]||'🎯 TỔNG HỢP';
+  document.getElementById('qobs-icon').textContent=obs.type.icon;
+  document.getElementById('qobs-text').textContent=obs.type.msg;
+  document.getElementById('qtext').textContent=CQ.q;
+  document.getElementById('qexp').style.display='none';
+  document.getElementById('qnext').style.display='none';
+
+  const opts=document.getElementById('qopts');
+  opts.innerHTML='';
+  ['A','B','C','D'].forEach((lbl,i)=>{
+    const btn=document.createElement('button');
+    btn.className='qbtn';
+    btn.innerHTML='<span class="qlbl">'+lbl+'.</span>'+CQ.o[i];
+    btn.addEventListener('click',()=>answerQ(i,btn,opts));
+    opts.appendChild(btn);
   });
-  btn.addEventListener('pointerup',  e=>{e.preventDefault();btn.classList.remove('pressed');dpadStop();});
-  btn.addEventListener('pointerout', ()=>{btn.classList.remove('pressed');dpadStop();});
-  btn.addEventListener('contextmenu',e=>e.preventDefault());
-});
 
-/* ══ TOUCH ANYWHERE: swipe OR tap relative to player ══ */
-(function(){
-  let sx=0,sy=0,active=false;
-  const ignore=e=>e.target.closest('#dpad')||e.target.closest('#questionOverlay')||e.target.closest('#pauseOverlay');
-  document.addEventListener('touchstart',e=>{
-    if(ignore(e))return;
-    sx=e.touches[0].clientX;sy=e.touches[0].clientY;active=true;
-  },{passive:true});
-  document.addEventListener('touchend',e=>{
-    if(!active||ignore(e)){active=false;return;}active=false;
-    if(!game||game.paused||game.inQuestion||game.gameOver)return;
-    const ex=e.changedTouches[0].clientX,ey=e.changedTouches[0].clientY;
-    const dx=ex-sx,dy=ey-sy;
-    // Swipe gesture
-    if(Math.abs(dx)>28||Math.abs(dy)>28){
-      movePlayer(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'));
-      return;
-    }
-    // Tap → direction relative to player on canvas
-    const cv=document.getElementById('gameCanvas');if(!cv||!game)return;
-    const r=cv.getBoundingClientRect();
-    const tx=ex-r.left,ty=ey-r.top;
-    const pcx=(game.px+.5)*game.CELL,pcy=(game.py+.5)*game.CELL;
-    const tdx=tx-pcx,tdy=ty-pcy;
-    if(Math.abs(tdx)<8&&Math.abs(tdy)<8)return;
-    movePlayer(Math.abs(tdx)>Math.abs(tdy)?(tdx>0?'right':'left'):(tdy>0?'down':'up'));
-  },{passive:true});
-})();
-
-/* ══ PC: click on canvas to move toward click ══ */
-document.getElementById('gameCanvas').addEventListener('click',e=>{
-  if(!game||game.paused||game.inQuestion||game.gameOver)return;
-  const r=e.currentTarget.getBoundingClientRect();
-  const cx=e.clientX-r.left,cy=e.clientY-r.top;
-  const pcx=(game.px+.5)*game.CELL,pcy=(game.py+.5)*game.CELL;
-  const dx=cx-pcx,dy=cy-pcy;
-  if(Math.abs(dx)<6&&Math.abs(dy)<6)return;
-  movePlayer(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'));
-});
-
-/* ══ GAME FLOW ══ */
-function startGame(){
-  if(game){game.destroy();game=null;}
-  stopGameLoop();
-
-  // 1. Ẩn menu, hiện gameCanvas (bước 4 trong hướng dẫn)
-  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active','visible');});
-  document.getElementById('questionOverlay').classList.remove('active');
-  document.getElementById('pauseOverlay').classList.remove('active');
-
-  const gs = document.getElementById('gameScreen');
-  gs.classList.add('active','visible');
-  document.getElementById('dpad').classList.add('visible');
-
-  // 2. resizeCanvas() — đo kích thước sau khi canvas visible (bước 3)
-  // 3. Android cần delay nhẹ (100ms) để vẽ mê cung (bước 4)
-  setTimeout(()=>{
-    game = new MazeGame(selectedChar, selectedDiff);
-    startGameLoop();
-  }, 100);
-}
-function togglePause(){
-  if(!game||game.gameOver)return;
-  game.paused=!game.paused;
-  document.getElementById('pauseOverlay').classList.toggle('active',game.paused);
-}
-function showResult(win,score,correct,time,level){
-  stopGameLoop();
-  showScreen('resultScreen');
-  _nextScore=score;_nextLevel=(level||1)+1;
-  const t=document.getElementById('resultTitle');
-  t.textContent=win?'🏆 Chiến Thắng!':'💀 Thất Bại!';
-  t.className='result-title '+(win?'win':'lose');
-  document.getElementById('resultStars').textContent=win?'⭐⭐⭐':(score>200?'⭐⭐':'⭐');
-  document.getElementById('resScore').textContent=score;
-  document.getElementById('resCorrect').textContent=correct;
-  document.getElementById('resTime').textContent=time;
-  document.getElementById('nextBtn').style.display=win?'':'none';
-}
-function backToMenu(){
-  stopGameLoop();
-  if(game){game.destroy();game=null;}
-  document.getElementById('pauseOverlay').classList.remove('active');
-  document.getElementById('questionOverlay').classList.remove('active');
-  showScreen('menuScreen');
+  const cfg=DCFG[G.diff];
+  const timerEl=document.getElementById('qtimer');
+  if(QTimerID)clearInterval(QTimerID);
+  if(cfg.time>0){
+    let tl=cfg.time;timerEl.textContent=tl+'s';timerEl.classList.remove('red');
+    QTimerID=setInterval(()=>{
+      tl--;timerEl.textContent=tl+'s';
+      if(tl<=5)timerEl.classList.add('red');
+      if(tl<=0){
+        clearInterval(QTimerID);
+        if(!QDone){
+          QDone=true;
+          opts.querySelectorAll('.qbtn')[CQ.a].classList.add('ok');
+          loseHp();
+          // Push player back
+          PL.x=Math.max(1,PL.x-(PL.dir==='right'?1:0));
+          PL.y=Math.max(1,PL.y-(PL.dir==='down'?1:0));
+          document.getElementById('qexp').textContent='⏰ Hết giờ! '+CQ.e;
+          document.getElementById('qexp').style.display='block';
+          document.getElementById('qnext').style.display='block';
+        }
+      }
+    },1000);
+  }else{timerEl.textContent='∞';timerEl.classList.remove('red');}
+  document.getElementById('q-overlay').classList.add('on');
 }
 
-/* ══ BUTTON BINDINGS (pointerdown = instant) ══ */
-[
-  ['pauseBtn',    ()=>togglePause()],
-  ['resumeBtn',   ()=>togglePause()],
-  ['pauseMenuBtn',()=>backToMenu()],
-  ['nextBtn',     ()=>{
-    if(game)game.destroy();game=null;
-    stopGameLoop();
-    document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active','visible');});
-    const gs=document.getElementById('gameScreen');
-    gs.classList.add('active','visible');
-    document.getElementById('dpad').classList.add('visible');
-    setTimeout(()=>{
-      game=new MazeGame(selectedChar,selectedDiff,_nextScore,_nextLevel);
-      startGameLoop();
-    },100);
-  }],
-  ['restartBtn',  ()=>{stopGameLoop();startGame();}],
-  ['resultMenuBtn',()=>backToMenu()],
-].forEach(([id,fn])=>document.getElementById(id).addEventListener('pointerdown',fn));
-
-/* ══ GAME LOOP — vẽ liên tục, Android không bị trắng màn hình ══ */
-let _loopId=null;
-function startGameLoop(){
-  cancelAnimationFrame(_loopId);
-  function loop(){
-    if(game&&!game.gameOver){
-      game.draw();
-      game.drawMinimap();
-    }
-    _loopId=requestAnimationFrame(loop);
+function answerQ(idx,btn,opts){
+  if(QDone)return;QDone=true;
+  if(QTimerID)clearInterval(QTimerID);
+  document.getElementById('qtimer').classList.remove('red');
+  const ok=idx===CQ.a;
+  opts.querySelectorAll('.qbtn').forEach((b,i)=>{b.onclick=null;if(i===CQ.a)b.classList.add('ok');});
+  if(ok){
+    // Correct! Remove obstacle, continue
+    if(COBS){COBS.done=true;MZ.grid[COBS.y][COBS.x]=0;}
+    G.score+=100+G.combo*10;G.combo++;PL.aura=1;
+    updateHUD();
+    if(navigator.vibrate)navigator.vibrate(40);
+  }else{
+    // Wrong! Player bounced back, loses HP
+    btn.classList.add('ng');
+    loseHp();
+    // Obstacle stays! Player is pushed back
+    PL.x=Math.max(1,PL.x-(PL.dir==='right'?1:PL.dir==='left'?-1:0));
+    PL.y=Math.max(1,PL.y-(PL.dir==='down'?1:PL.dir==='up'?-1:0));
   }
-  _loopId=requestAnimationFrame(loop);
-}
-function stopGameLoop(){cancelAnimationFrame(_loopId);_loopId=null;}
-
-/* ══ RESIZE ENGINE — chuẩn Android ══ */
-// Tính CELL size dựa trên kích thước màn hình thực tế
-function calcCellSize(mazeW){
-  // Đọc kích thước sau khi browser đã layout
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const isMobile = vw <= 700;
-  // Dành không gian: mobile → full width trừ padding; PC → ~52% width, 62% height
-  const aw = Math.min(isMobile ? vw * 0.96 : vw * 0.52, 480);
-  const ah = Math.min(isMobile ? vh * 0.55 : vh * 0.62, 480);
-  // tileSize = Math.floor(availableSpace / mazeColumns) — đúng công thức tài liệu
-  return Math.max(18, Math.min(50, 0 | Math.min(aw, ah) / mazeW));
+  const exp=document.getElementById('qexp');
+  exp.textContent=(ok?'✅ Chính xác! ':'❌ Sai rồi! ')+CQ.e;
+  exp.style.display='block';
+  document.getElementById('qnext').style.display='block';
 }
 
-function resizeCanvas(){
-  if(!game || game.gameOver) return;
-  const newCell = calcCellSize(game.W);
-  if(newCell === game.CELL) return; // không thay đổi, bỏ qua
-  game.CELL = newCell;
-  const cv = document.getElementById('gameCanvas');
-  cv.width  = game.W * newCell;
-  cv.height = game.H * newCell;
-  // Vẽ lại ngay sau resize
-  game.draw();
-  game.drawMinimap();
+function closeQ(){
+  document.getElementById('q-overlay').classList.remove('on');
+  if(QTimerID)clearInterval(QTimerID);
+  document.getElementById('qtimer').classList.remove('red');
+  G.paused=false;
 }
 
-// Lắng nghe cả resize VÀ orientationchange — Android cần orientationchange
-window.addEventListener('resize', resizeCanvas);
-window.addEventListener('orientationchange', () => {
-  // Android cần delay nhẹ sau orientationchange để đo lại kích thước đúng
-  setTimeout(resizeCanvas, 120);
-});
-
-/* ══ NOTIFICATION ══ */
-let _nTO=null;
-function showNotif(msg){
-  const el=document.getElementById('notif');
-  el.textContent=msg;el.classList.add('show');
-  clearTimeout(_nTO);_nTO=setTimeout(()=>el.classList.remove('show'),1600);
+// ================================================================
+// FLOOR / GAME OVER
+// ================================================================
+function nextFloor(){
+  G.floor++;G.score+=300;updateHUD();
+  const T=theme();
+  const lv=document.getElementById('lvlup');
+  document.getElementById('lvlup-info').textContent='⚔️ '+T.name+' - Tầng '+G.floor;
+  lv.classList.add('on');
+  setTimeout(()=>{lv.classList.remove('on');initMaze();},2000);
+}
+function gameOver(){
+  gameRunning=false;
+  const C=CHAR_DEFS[G.char];
+  document.getElementById('go-stats').innerHTML=
+    '⭐ Điểm: <span>'+G.score+'</span><br>'+
+    '🏰 Tầng đạt: <span>'+G.floor+'</span><br>'+
+    '🎯 Nhân vật: <span>'+C.name+'</span><br>'+
+    '📚 Môn học: <span>'+(SUBJ_NAMES[G.subj]||G.subj)+'</span>';
+  document.getElementById('go-screen').classList.add('on');
+}
+function backMenu(){
+  gameRunning=false;G.floor=1;
+  document.getElementById('go-screen').classList.remove('on');
+  document.getElementById('game-screen').classList.remove('active');
+  document.getElementById('menu-screen').classList.add('active');
 }
 
-/* ══ INIT ══ */
-(function(){
-  const m=document.getElementById('menuScreen');
-  m.classList.add('active');
-  requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.add('visible')));
-})();
+// ================================================================
+// INIT MAZE
+// ================================================================
+function initMaze(){
+  const cfg=DCFG[G.diff];
+  const mw=cfg.mw%2===0?cfg.mw+1:cfg.mw;
+  const mh=cfg.mh%2===0?cfg.mh+1:cfg.mh;
+  MZ=genMaze(mw,mh);
+  PL.x=1;PL.y=1;PL.aura=0;PL.dir='right';PL.state='idle';PL.hurtTimer=0;
+  requestAnimationFrame(()=>{setupCanvas();render();});
+}
+
+// ================================================================
+// GAME LOOP
+// ================================================================
+let gameRunning=false,lastT=0,moveCooldown=0;
+function loop(ts){
+  if(!gameRunning)return;
+  const dt=Math.min(ts-lastT,80);lastT=ts;AF++;
+
+  if(PL.hurtTimer>0){PL.hurtTimer--;if(PL.hurtTimer===0)PL.state='idle';}
+
+  moveCooldown-=dt;
+  if(moveCooldown<=0&&!G.paused){
+    const dir=inputDir();
+    if(dir){
+      const spd=CHAR_DEFS[G.char].spd;
+      moveCooldown=155/(spd/2.3);
+      PL.state='walk';
+      movePlayer(dir);
+    }else{
+      PL.state='idle';
+    }
+  }
+  render();
+  requestAnimationFrame(loop);
+}
+
+// ================================================================
+// START GAME
+// ================================================================
+function startGame(){
+  const cfg=DCFG[G.diff];
+  G.hp=cfg.hp;G.maxHp=cfg.hp;G.combo=0;G.score=0;G.floor=1;G.paused=false;G.usedQ=new Set();
+  if(QTimerID)clearInterval(QTimerID);
+  document.getElementById('menu-screen').classList.remove('active');
+  document.getElementById('game-screen').classList.add('active');
+  document.getElementById('go-screen').classList.remove('on');
+  if('ontouchstart'in window||navigator.maxTouchPoints>0)document.body.classList.add('mob-active');
+  else document.body.classList.remove('mob-active');
+  updateHUD();initMaze();
+  gameRunning=true;lastT=performance.now();
+  requestAnimationFrame(loop);
+}
+
+window.addEventListener('resize',()=>{if(MZ&&gameRunning)requestAnimationFrame(setupCanvas);});
+
+// Start animated previews
+requestAnimationFrame(renderPreviews);
 </script>
 </body>
 </html>
